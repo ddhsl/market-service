@@ -8,7 +8,7 @@ export const Title = styled.header`
   box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.1);
   position: relative;
   z-index: 100;
-  padding: 0 7%;
+  padding: 0 6%;
 `;
 
 export const SearchSection = styled.div`
