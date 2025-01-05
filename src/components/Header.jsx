@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
+
 import {
   Title,
   SearchSection,
@@ -62,10 +64,12 @@ export default function Header() {
       </div>
       <Nav>
         {navItems.map(({ icon, text, alt, isIconVisible }, index) => (
-          <NavButton key={index}>
-            {isIconVisible && <img src={icon} alt={alt} />}
-            <NavText>{text}</NavText>
-          </NavButton>
+          <Link to="/login">
+            <NavButton key={index}>
+              {isIconVisible && <img src={icon} alt={alt} />}
+              <NavText>{text}</NavText>
+            </NavButton>
+          </Link>
         ))}
       </Nav>
     </Title>
