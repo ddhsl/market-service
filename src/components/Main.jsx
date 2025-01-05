@@ -1,4 +1,11 @@
-import styled from "styled-components";
+import {
+  Main,
+  ProductCard,
+  ProductImg,
+  StoreName,
+  ProductName,
+  Price,
+} from "../styles/mainStyle";
 import { useEffect, useState } from "react";
 
 export default function MainContent() {
@@ -44,37 +51,3 @@ export default function MainContent() {
     </Main>
   );
 }
-
-const Main = styled.main`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  padding: 0 7%;
-  margin-top: 80px;
-  gap: 78px;
-`;
-
-const ProductCard = styled.article``;
-
-const ProductImg = styled.img`
-  border: 1px solid #c4c4c4;
-  border-radius: 10px;
-  width: 350px;
-  height: 350px;
-  margin-bottom: 16px;
-`;
-
-const StoreName = styled.p`
-  color: var(--sub-color);
-  margin-bottom: 10px;
-`;
-
-const ProductName = styled.h3`
-  font-size: 18px;
-  margin-bottom: 10px;
-`;
-
-const Price = styled.span`
-  font-size: 24px;
-  font-weight: bold;
-`;
