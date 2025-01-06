@@ -12,5 +12,5 @@ const StyledInputField = styled.form`
   position: relative;
   top: -20px;
   background-color: #fff;
-  padding-top: 30px;
+  padding: 30px 35px 36px;
 `;
