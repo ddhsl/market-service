@@ -6,8 +6,10 @@ export default function Input(props) {
 
 const StyledInput = styled.input`
   width: ${(props) => props.width || "480px"};
-  height: 60px;
+  height: 54px;
   border: ${(props) => props.border || "1px solid #c4c4c4"};
-  margin: 0 auto;
-  border-bottom: ${(props) => props.borderBottom || "none"};
+  border-bottom: ${(props) => props.borderBottom};
+  border-radius: ${(props) => props.borderRadius || "5px"};
+  margin-bottom: ${(props) => props.marginBottom || "12px"};
+  padding-left: ${(props) => props.paddingLeft || "16px"};
 `;
