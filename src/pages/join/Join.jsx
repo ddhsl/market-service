@@ -18,7 +18,8 @@ export default function Join() {
       <JoinForm />
       <p>
         호두샵의 <span>이용약관</span> 및 <span>개인정보처리방침</span>에 대한
-        내용을 확인하였고 동의합니다.
+        내용을 확인하였고 동<br />
+        의합니다.
       </p>
       <Button width="480px" height="60px" fontSize="18px">
         가입하기
