@@ -2,8 +2,10 @@ import styled from "styled-components";
 import InputField from "../../../components/InputField";
 import Input from "../../../components/Input";
 import Button from "../../../components/Button";
-import SellerJoin from "./SellerJoin";
-import AlertMsg from "../../../components/AlertMsg";
+import pwCheckImg from "../../../assets/icon-check-off.svg";
+// import SellerJoin from "./SellerJoin";
+// import AlertMsg from "../../../components/AlertMsg";
+import PhoneNumber from "./PhoneNumber";
 
 export default function JoinForm() {
   return (
@@ -21,13 +23,13 @@ export default function JoinForm() {
       <label htmlFor="pw" className="sr-only">
         비밀번호를 입력하세요
       </label>
-      <Input id="pw" name="pw" />
+      <PwInput id="pw" name="pw" />
 
       <InputTitle>비밀번호 재확인</InputTitle>
       <label htmlFor="pw" className="sr-only">
         비밀번호를 재입력하세요
       </label>
-      <Input id="pw" name="pw" />
+      <PwInput id="pw" name="pw" />
 
       <InputTitle style={{ marginTop: "40px" }}>이름</InputTitle>
       <label htmlFor="userName" className="sr-only">
@@ -36,11 +38,8 @@ export default function JoinForm() {
       <Input id="userName" name="userName" />
 
       <InputTitle>휴대폰번호</InputTitle>
-      <label htmlFor="mobile" className="sr-only">
-        휴대폰 번호를 입력하세요
-      </label>
-      <Input id="mobile" name="mobile" />
-      <SellerJoin />
+      <PhoneNumber />
+      {/* <SellerJoin /> */}
     </InputField>
   );
 }
@@ -57,4 +56,10 @@ export const InputGroup = styled.div`
     height: 54px;
     margin-left: 12px;
   }
+`;
+
+const PwInput = styled(Input)`
+  background-image: url(${pwCheckImg});
+  background-repeat: no-repeat;
+  background-position: right 13px center;
 `;
