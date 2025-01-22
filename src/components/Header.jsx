@@ -44,7 +44,9 @@ export default function Header() {
       <div>
         <SearchSection>
           <h1>
-            <Logo src={logo} alt="HODU 로고" />
+            <Link to="/">
+              <Logo src={logo} alt="HODU 로고" />
+            </Link>
           </h1>
           <form action="">
             <label htmlFor="search" className="sr-only">
