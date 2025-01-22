@@ -7,10 +7,12 @@ import {
   Price,
 } from "../styles/mainStyle";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function MainContent() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -40,7 +42,10 @@ export default function MainContent() {
   return (
     <Main>
       {products.map((product) => (
-        <ProductCard key={product.id}>
+        <ProductCard
+          key={product.id}
+          onClick={() => navigate(`/product-details/${product.id}`)}
+        >
           <ProductImg src={product.image} alt={product.info} />
           <StoreName>{product.seller.store_name}</StoreName>
           <ProductName>{product.name}</ProductName>
