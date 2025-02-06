@@ -46,10 +46,10 @@ export default function MainContent() {
           key={product.id}
           onClick={() => navigate(`/product-details/${product.id}`)}
         >
-          <ProductImg src={product.image} alt={product.info} />
-          <StoreName>{product.seller.store_name}</StoreName>
-          <ProductName>{product.name}</ProductName>
-          <Price>{product.price.toLocaleString()}</Price>
+          <ProductImg variant="main" src={product.image} alt={product.info} />
+          <StoreName variant="main">{product.seller.store_name}</StoreName>
+          <ProductName variant="main">{product.name}</ProductName>
+          <Price variant="main">{product.price.toLocaleString()}</Price>
           <span>원</span>
         </ProductCard>
       ))}
