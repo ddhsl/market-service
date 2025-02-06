@@ -1,18 +1,41 @@
+import { useState } from "react";
 import styled, { css } from "styled-components";
 import dropdownImg from "../../../assets/icon-down-arrow.svg";
+import dropdownImg2 from "../../../assets/icon-up-arrow.svg";
 
 export default function PhonePrefix() {
+  const [selectedPrefix, setSelectedPrefix] = useState("010");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  const toggleDropdown = () => {
+    //셀렉트박스를 토글하는 함수
+    setIsDropdownOpen((prev) => !prev);
+  };
+
+  const handleSelect = (prefix) => {
+    //셀렉트 옵션 값을 선택하면 그 값이 선택된 값으로 변경되는 함수
+    setSelectedPrefix(prefix);
+    setIsDropdownOpen(false);
+  };
+
   return (
     <>
-      <PhonePrefixButton>
-        <span>010</span>
-        <img src={dropdownImg} alt="dropdown icon" />
+      <PhonePrefixButton onClick={toggleDropdown}>
+        <span>{selectedPrefix}</span>
+        <img
+          src={isDropdownOpen ? dropdownImg2 : dropdownImg}
+          alt="dropdown icon"
+        />
       </PhonePrefixButton>
-      <PrefixDropdown>
-        {phonePrefixes.map((prefix) => (
-          <PrefixOption key={prefix}>{prefix}</PrefixOption>
-        ))}
-      </PrefixDropdown>
+      {isDropdownOpen && (
+        <PrefixDropdown>
+          {phonePrefixes.map((prefix) => (
+            <PrefixOption key={prefix} onClick={() => handleSelect(prefix)}>
+              {prefix}
+            </PrefixOption>
+          ))}
+        </PrefixDropdown>
+      )}
     </>
   );
 }
@@ -26,7 +49,7 @@ export const mobileStyle = css`
   border: 1px solid #c4c4c4;
 `;
 
-const PhonePrefixButton = styled.button`
+const PhonePrefixButton = styled.div`
   ${mobileStyle}
   display: flex;
   align-items: center;
