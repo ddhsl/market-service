@@ -5,7 +5,12 @@ import Header from "../../components/Header";
 import Button from "../../components/Button";
 import minusIcon from "../../assets/icon-minus-line.svg";
 import plusIcon from "../../assets/icon-plus-line.svg";
-import { StoreName, ProductName, Price } from "../../styles/mainStyle";
+import {
+  ProductImg,
+  StoreName,
+  ProductName,
+  Price,
+} from "../../styles/mainStyle";
 
 export default function ProductDetails() {
   const { id } = useParams(); //구조분해할당 구문 사용 {id}
@@ -42,12 +47,15 @@ export default function ProductDetails() {
       <Header />
       <ProductInfoSection>
         <h2 className="sr-only">상품정보</h2>
-        <img src={product.image} alt={product.name} />
+        <ProductImg variant="detail" src={product.image} alt={product.name} />
         <ProductDetail>
-          <StoreName>{product.seller.store_name}</StoreName>
-          <ProductName>{product.name}</ProductName>
-          <Price>{product.price.toLocaleString()} 원</Price>
-          <p>택배배송 / 무료배송</p>
+          <StoreName variant="detail">{product.seller.store_name}</StoreName>
+          <ProductName variant="detail">{product.name}</ProductName>
+          <Price variant="detail">{product.price.toLocaleString()} </Price>
+          <span>원</span>
+          <p style={{ color: "var(--sub-color", marginTop: "138px" }}>
+            택배배송 / 무료배송
+          </p>
           <QuantityControl>
             <button>
               <img src={minusIcon} alt="수량 줄이기" />
@@ -59,13 +67,32 @@ export default function ProductDetails() {
           </QuantityControl>
           <OrderSummary>
             <p>총 상품 금액</p>
-            <p>
-              총 수량 <span>1</span>개
-            </p>
-            <p>{product.price.toLocaleString()} 원</p>
+            <div>
+              <p>
+                총 수량 <span style={{ color: "var(--main-color)" }}>1</span>개
+              </p>
+              <Price
+                variant="detail"
+                style={{
+                  color: "var(--main-color)",
+                }}
+              >
+                {product.price.toLocaleString()}
+              </Price>
+              <span style={{ color: "var(--main-color)" }}>원</span>
+            </div>
           </OrderSummary>
-          <Button>바로 구매</Button>
-          <Button>장바구니</Button>
+          <Button style={{ width: "416px", height: "60px" }}>바로 구매</Button>
+          <Button
+            style={{
+              width: "200px",
+              height: "60px",
+              backgroundColor: "var(--sub-color)",
+              marginLeft: "14px",
+            }}
+          >
+            장바구니
+          </Button>
         </ProductDetail>
       </ProductInfoSection>
       <PurchaseInfoSection>
@@ -91,16 +118,53 @@ const ProductInfoSection = styled.section`
     height: 600px;
   }
 `;
-const ProductDetail = styled.div``;
+const ProductDetail = styled.div`
+  & > button {
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 22px;
+  }
+`;
 
 const QuantityControl = styled.div`
   display: flex;
   align-items: center;
+  width: 630px;
+  height: 110px;
+  border: 1px solid #c4c4c4;
+  border-left: none;
+  border-right: none;
+  margin-top: 20px;
+  margin-bottom: 32px;
 `;
 
 const OrderSummary = styled.div`
   display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+
+  & > p {
+    font-weight: bold;
+    font-size: 18px;
+  }
+
+  & > div {
+    display: flex;
+    align-items: baseline;
+  }
+
+  & > div > p {
+    font-size: 18px;
+    color: var(--sub-color);
+  }
+
+  & > div > p::after {
+    content: "|";
+    margin-left: 11px;
+    margin-right: 11px;
+  }
 `;
+
 const PurchaseInfoSection = styled.section`
   padding: 0 6%;
 `;
