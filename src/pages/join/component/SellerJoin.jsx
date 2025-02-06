@@ -5,7 +5,7 @@ import { InputTitle, InputGroup } from "./JoinForm";
 export default function SellerJoin() {
   return (
     <>
-      <InputTitle>사업자 등록번호</InputTitle>
+      <InputTitle style={{ marginTop: "50px" }}>사업자 등록번호</InputTitle>
       <label htmlFor="componyNo" className="sr-only">
         사업자 등록번호를 입력하세요
       </label>
