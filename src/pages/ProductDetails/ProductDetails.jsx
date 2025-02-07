@@ -3,8 +3,8 @@ import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import Header from "../../components/Header";
 import Button from "../../components/Button";
-import minusIcon from "../../assets/icon-minus-line.svg";
-import plusIcon from "../../assets/icon-plus-line.svg";
+import QuantityControlSection from "./component/QuantityControlSection";
+import PurchaseInfoSection from "./component/PurchaseInfoSection";
 import {
   ProductImg,
   StoreName,
@@ -56,15 +56,7 @@ export default function ProductDetails() {
           <p style={{ color: "var(--sub-color", marginTop: "138px" }}>
             택배배송 / 무료배송
           </p>
-          <QuantityControl>
-            <button>
-              <img src={minusIcon} alt="수량 줄이기" />
-            </button>
-            <div>1</div>
-            <button>
-              <img src={plusIcon} alt="수량 늘리기" />
-            </button>
-          </QuantityControl>
+          <QuantityControlSection />
           <OrderSummary>
             <p>총 상품 금액</p>
             <div>
@@ -95,15 +87,7 @@ export default function ProductDetails() {
           </Button>
         </ProductDetail>
       </ProductInfoSection>
-      <PurchaseInfoSection>
-        <h2 className="sr-only">구매정보</h2>
-        <ul>
-          <li>버튼</li>
-          <li>리뷰</li>
-          <li>Q&A</li>
-          <li>반품/교환정보</li>
-        </ul>
-      </PurchaseInfoSection>
+      <PurchaseInfoSection />
     </>
   );
 }
@@ -124,18 +108,6 @@ const ProductDetail = styled.div`
     font-weight: bold;
     margin-top: 22px;
   }
-`;
-
-const QuantityControl = styled.div`
-  display: flex;
-  align-items: center;
-  width: 630px;
-  height: 110px;
-  border: 1px solid #c4c4c4;
-  border-left: none;
-  border-right: none;
-  margin-top: 20px;
-  margin-bottom: 32px;
 `;
 
 const OrderSummary = styled.div`
@@ -163,8 +135,4 @@ const OrderSummary = styled.div`
     margin-left: 11px;
     margin-right: 11px;
   }
-`;
-
-const PurchaseInfoSection = styled.section`
-  padding: 0 6%;
 `;
