@@ -1,22 +1,18 @@
 import styled from "styled-components";
+import OrdererForm from "./OrdererForm";
+import ShippingForm from "./ShippingForm";
 
 export default function ShippingInfo() {
   return (
-    <ShippingSection>
+    <section>
       <ShippingTitle>배송정보</ShippingTitle>
-      <OrdererInfo>
-        <OrdererTitle>주문자 정보</OrdererTitle>
-      </OrdererInfo>
-      <ShippingDetails>
-        <ShippingDetailsTitle>배송지 정보</ShippingDetailsTitle>
-      </ShippingDetails>
-    </ShippingSection>
+      <OrdererForm></OrdererForm>
+      <ShippingForm></ShippingForm>
+    </section>
   );
 }
 
-const ShippingSection = styled.section``;
-
-const ShippingTitle = styled.h3`
+export const ShippingTitle = styled.h3`
   font-weight: bold;
   font-size: 24px;
   padding-bottom: 18px;
@@ -24,14 +20,14 @@ const ShippingTitle = styled.h3`
   border-bottom: 2px solid #c4c4c4;
 `;
 
-const OrdererInfo = styled.section``;
+export const ShippingInputWrap = styled.div`
+  width: 100%;
+  height: 56px;
+  border-bottom: 1px solid #c4c4c4;
+  display: flex;
+  align-items: center;
 
-const OrdererTitle = styled(ShippingTitle)`
-  font-size: 18px;
-  padding-bottom: 8px;
-  margin-bottom: 0;
+  label {
+    width: 170px;
+  }
 `;
-
-const ShippingDetailsTitle = styled(OrdererTitle)``;
-
-const ShippingDetails = styled.section``;
