@@ -3,7 +3,7 @@ import { StyledShippingInput } from "./ShippingInput";
 
 export default function PhoneInput({ idPrefix, namePrefix }) {
   return (
-    <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+    <div style={{ display: "flex", alignItems: "center" }}>
       <StyledShippingInput
         id={`${idPrefix}-first`}
         name={`${namePrefix}First`}
