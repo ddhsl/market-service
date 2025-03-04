@@ -1,12 +1,12 @@
 import styled from "styled-components";
 import ShippingInput from "./ShippingInput";
 import PhoneInput from "./PhoneInput";
-import { ShippingTitle, ShippingInputWrap } from "./ShippingInfo";
+import { ShippingInputWrap } from "./ShippingInfo";
 
 export default function OrdererForm() {
   return (
     <section>
-      <OrdererTitle>주문자 정보</OrdererTitle>
+      <OrdererSubTitle>주문자 정보</OrdererSubTitle>
       <form action="">
         <ShippingInputWrap>
           <label htmlFor="orderer-name">이름</label>
@@ -25,9 +25,10 @@ export default function OrdererForm() {
   );
 }
 
-export const OrdererTitle = styled(ShippingTitle)`
+const OrdererSubTitle = styled.p`
+  font-weight: bold;
   font-size: 18px;
   padding-bottom: 8px;
-  margin-bottom: 0;
   margin-top: 40px;
+  border-bottom: 2px solid #c4c4c4;
 `;
