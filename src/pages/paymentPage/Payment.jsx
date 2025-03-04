@@ -12,7 +12,7 @@ const paymentLabels = [
     flex: 4,
   },
   {
-    text: "일반",
+    text: "할인",
     flex: 2,
   },
   {
