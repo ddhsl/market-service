@@ -4,12 +4,11 @@ import PhoneInput from "./PhoneInput";
 import Button from "../../../components/Button";
 import { StyledShippingInput } from "./ShippingInput";
 import { ShippingInputWrap } from "./ShippingInfo";
-import { OrdererTitle } from "./OrdererForm";
 
 export default function ShippingForm() {
   return (
     <section>
-      <ShippingDetailsTitle>배송지 정보</ShippingDetailsTitle>
+      <ShippingSubTitle>배송지 정보</ShippingSubTitle>
       <form action="">
         <ShippingInputWrap>
           <label htmlFor="recipient">수령인</label>
@@ -80,4 +79,10 @@ export default function ShippingForm() {
   );
 }
 
-const ShippingDetailsTitle = styled(OrdererTitle)``;
+const ShippingSubTitle = styled.p`
+  font-weight: bold;
+  font-size: 18px;
+  padding-bottom: 8px;
+  margin-top: 40px;
+  border-bottom: 2px solid #c4c4c4;
+`;
