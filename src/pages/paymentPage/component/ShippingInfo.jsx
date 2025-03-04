@@ -1,6 +1,8 @@
 import styled from "styled-components";
 import OrdererForm from "./OrdererForm";
 import ShippingForm from "./ShippingForm";
+import PaymentForm from "./PaymentForm";
+import FinalPaymentDetails from "./FinalPaymentDetails";
 
 export default function ShippingInfo() {
   return (
@@ -8,16 +10,36 @@ export default function ShippingInfo() {
       <ShippingTitle>배송정보</ShippingTitle>
       <OrdererForm></OrdererForm>
       <ShippingForm></ShippingForm>
+      <div style={{ marginTop: "70px", display: "flex", gap: "40px" }}>
+        <div>
+          <PaymentMethodTitle>결제수단</PaymentMethodTitle>
+          <PaymentForm></PaymentForm>
+        </div>
+        <div style={{ flexGrow: "1" }}>
+          <FinalPaymentTitle>최종결제 정보</FinalPaymentTitle>
+          <FinalPaymentDetails></FinalPaymentDetails>
+        </div>
+      </div>
     </section>
   );
 }
 
-export const ShippingTitle = styled.h3`
+const ShippingTitle = styled.h3`
   font-weight: bold;
   font-size: 24px;
   padding-bottom: 18px;
-  margin-bottom: 40px;
   border-bottom: 2px solid #c4c4c4;
+`;
+const PaymentMethodTitle = styled.h3`
+  font-weight: bold;
+  font-size: 24px;
+  padding-bottom: 18px;
+`;
+
+const FinalPaymentTitle = styled.h3`
+  font-weight: bold;
+  font-size: 24px;
+  padding-bottom: 18px;
 `;
 
 export const ShippingInputWrap = styled.div`
