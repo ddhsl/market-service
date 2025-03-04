@@ -169,6 +169,10 @@ select {
   padding: 0;
   margin: 0;
 }
+input[type="radio"],
+input[type="checkbox"] {
+  all: revert; /* 기본 스타일 되돌리기 */
+}
 
 /* 포커스 상태에서 스타일 */
 input:focus,
