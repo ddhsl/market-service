@@ -1,22 +1,25 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styled, { css } from "styled-components";
 import dropdownImg from "../../../assets/icon-down-arrow.svg";
 import dropdownImg2 from "../../../assets/icon-up-arrow.svg";
 
-export default function PhonePrefix() {
+export default function PhonePrefix({ selectedTab }) {
   const [selectedPrefix, setSelectedPrefix] = useState("010");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const toggleDropdown = () => {
-    //셀렉트박스를 토글하는 함수
     setIsDropdownOpen((prev) => !prev);
   };
 
   const handleSelect = (prefix) => {
-    //셀렉트 옵션 값을 선택하면 그 값이 선택된 값으로 변경되는 함수
     setSelectedPrefix(prefix);
     setIsDropdownOpen(false);
   };
+
+  // selectedTab이 바뀌면 드롭다운을 닫음
+  useEffect(() => {
+    setIsDropdownOpen(false);
+  }, [selectedTab]);
 
   return (
     <>
@@ -28,7 +31,7 @@ export default function PhonePrefix() {
         />
       </PhonePrefixButton>
       {isDropdownOpen && (
-        <PrefixDropdown>
+        <PrefixDropdown selectedTab={selectedTab}>
           {phonePrefixes.map((prefix) => (
             <PrefixOption key={prefix} onClick={() => handleSelect(prefix)}>
               {prefix}
@@ -71,10 +74,21 @@ const PrefixDropdown = styled.div`
   ${mobileStyle}
   background-color: #fff;
   position: absolute;
-  bottom: -120px;
   z-index: 10;
   height: 150px;
   overflow-y: auto;
+
+  ${({ selectedTab }) =>
+    selectedTab === "buyer" &&
+    css`
+      bottom: -120px;
+    `}
+
+  ${({ selectedTab }) =>
+    selectedTab === "seller" &&
+    css`
+      bottom: 115px;
+    `}
 `;
 
 const PrefixOption = styled.div`
