@@ -11,6 +11,7 @@ export default function Login() {
 
   const handleTab = (tab) => {
     setSelectedTab(tab); // Tab 클릭 시 selectedTab 업데이트
+    console.log(tab);
   };
 
   return (
