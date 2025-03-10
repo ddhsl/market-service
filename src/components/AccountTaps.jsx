@@ -1,11 +1,11 @@
 import styled from "styled-components";
 import { css } from "styled-components";
 
-export default function AccountTaps({ formType, handleTab, selectedTab }) {
+export default function AccountTabs({ formType, handleTab, selectedTab }) {
   const isJoin = formType === "join";
 
   return (
-    <section>
+    <TabContainer>
       <h3 className="sr-only">
         {isJoin ? "회원가입 유형 선택하기" : "로그인 유형 선택하기"}
       </h3>
@@ -21,18 +21,28 @@ export default function AccountTaps({ formType, handleTab, selectedTab }) {
       >
         <span>{isJoin ? "판매회원가입" : "판매회원 로그인"}</span>
       </SellerTab>
-    </section>
+    </TabContainer>
   );
 }
 
+const TabContainer = styled.section`
+  display: flex;
+  position: relative;
+  margin-top: 70px;
+`;
+
 const AccountTabStyle = styled.button`
   background-color: ${(props) => (props.isSelected ? "#fff" : "#f2f2f2")};
-  width: 275px;
+  position: relative;
+
+  z-index: ${(props) => (props.isSelected ? "100" : "70")};
+  width: 277px;
   height: 80px;
   border: 1px solid #c4c4c4;
-  border-bottom: none;
+  border-bottom: ${(props) =>
+    props.isSelected ? "none" : "1px solid #c4c4c4"};
   border-radius: 10px 10px 0 0;
-  margin-top: 70px;
+  cursor: pointer;
 `;
 
 const tabSpanStyle = css`
@@ -43,11 +53,6 @@ const tabSpanStyle = css`
 `;
 
 const BuyerTab = styled(AccountTabStyle)`
-  position: relative;
-  z-index: 100;
-  height: 60px;
-  top: -10px;
-  border-bottom: ${(props) => (props.isSelected ? "2px solid #fff" : "none")};
   span {
     ${tabSpanStyle}
   }
@@ -56,8 +61,5 @@ const BuyerTab = styled(AccountTabStyle)`
 const SellerTab = styled(AccountTabStyle)`
   span {
     ${tabSpanStyle}
-    position: relative;
-
-    top: -9px;
   }
 `;
