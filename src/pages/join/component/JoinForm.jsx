@@ -15,30 +15,16 @@ export default function JoinForm({ formType, selectedTab }) {
   const [isAgree, setIsAgree] = useState(false);
   const [isPasswordValid, setIsPasswordValid] = useState(false);
   const [isConfirmPasswordValid, setIsConfirmPasswordValid] = useState(false);
+  const [isUsernameAvailable, setIsUsernameAvailable] = useState(false);
+  const [isCompanyNoAvailable, setIsCompanyNoAvailable] = useState(false);
 
-  const handleAgree = () => {
-    setIsAgree((prev) => !prev);
-  };
-
-  const handleCheckUsername = () => {
-    if (!joinFormData.username) {
-      setErrors((prev) => ({
-        ...prev,
-        username: "아이디를 입력하세요.",
-      }));
-      return;
-    }
-    console.log("아이디 중복확인 요청: ", joinFormData.username);
-  };
-
-  // 탭 변경 시 초기화
   const [joinFormData, setJoinFormData] = useState({
     username: "",
     password: "",
     confirmPassword: "",
     name: "",
     phone_number: "",
-    company_number: "",
+    company_registration_number: "",
     storeName: "",
   });
 
@@ -61,7 +47,7 @@ export default function JoinForm({ formType, selectedTab }) {
         confirmPassword: "",
         name: "",
         phone_number: "",
-        company_number: "",
+        company_registration_number: "",
         storeName: "",
       });
     }
@@ -74,7 +60,115 @@ export default function JoinForm({ formType, selectedTab }) {
 
     // 동의하기 초기화
     setIsAgree(false);
+
+    // 아이디 중복확인 초기화
+    setIsUsernameAvailable(false);
+
+    // 사업자등록번호 중복확인 초기화
+    setIsCompanyNoAvailable(false);
   }, [selectedTab]);
+
+  // 동의하기 적용 함수
+  const handleAgree = () => {
+    setIsAgree((prev) => !prev);
+  };
+
+  // 아이디 중복 체크 함수
+  const handleCheckUsername = async () => {
+    if (!joinFormData.username) {
+      setErrors((prev) => ({
+        ...prev,
+        username: "아이디를 입력하세요.",
+      }));
+      setIsUsernameAvailable(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        "https://estapi.openmarket.weniv.co.kr/accounts/validate-username/",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ username: joinFormData.username }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.error) {
+        setErrors((prev) => ({
+          ...prev,
+          username: data.error,
+        }));
+        setIsUsernameAvailable(false);
+      } else if (data.message) {
+        setErrors((prev) => ({
+          ...prev,
+          username: null, // 오류가 없으면 null로 설정
+        }));
+        setIsUsernameAvailable(true);
+      }
+    } catch (error) {
+      console.error("아이디 중복 확인 요청 중 오류 발생:", error);
+      setIsUsernameAvailable(false);
+    }
+  };
+
+  // 사업자등록번호 인증 함수
+  const handleCheckComponyNo = async () => {
+    if (!joinFormData.company_registration_number) {
+      setErrors((prev) => ({
+        ...prev,
+        username: "사업자등록번호를 입력하세요.",
+      }));
+      setIsCompanyNoAvailable(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        "https://estapi.openmarket.weniv.co.kr/accounts/seller/validate-registration-number/",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            company_registration_number:
+              joinFormData.company_registration_number,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.error) {
+        if (data.error === "company_registration_number 필드를 추가해주세요.") {
+          console.error("사업자등록번호 필드를 추가해주세요.");
+          setIsCompanyNoAvailable(false);
+        } else if (data.error === "사업자등록번호는 10자리 숫자여야 합니다.") {
+          console.error("사업자등록번호는 10자리 숫자여야 합니다.");
+          setIsCompanyNoAvailable(false);
+        } else if (data.error === "이미 등록된 사업자등록번호입니다.") {
+          console.error("이미 등록된 사업자등록번호입니다.");
+          setIsCompanyNoAvailable(false);
+        }
+      } else if (data.message) {
+        console.log(data.message);
+        setErrors((prev) => ({
+          ...prev,
+          company_registration_number: null, // 오류가 없으면 null로 설정
+        }));
+        setIsCompanyNoAvailable(true);
+      }
+    } catch (error) {
+      console.error("사업자등록번호 중복 확인 요청 중 오류 발생:", error);
+      setIsCompanyNoAvailable(false);
+    }
+  };
 
   // 입력 필드 순서
   const fieldOrder = [
@@ -83,7 +177,7 @@ export default function JoinForm({ formType, selectedTab }) {
     "confirmPassword",
     "name",
     "phone_number",
-    "company_number",
+    "company_registration_number",
     "storeName",
   ];
 
@@ -104,16 +198,18 @@ export default function JoinForm({ formType, selectedTab }) {
       ...newErrors,
     }));
   };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setJoinFormData((prev) => {
       return { ...prev, [name]: value };
     });
 
+    setIsUsernameAvailable(false); // 아이디 입력이 바뀌면 다시 검사해야 하므로 false로 초기화
+
     // 유효성 검사 실행
     const newErrors = validateField(name, value);
 
-    // 비밀번호가 비어있는 경우 체크이미지 상태를 초기화
     if (name === "password" && !value) {
       setIsPasswordValid(false);
     }
@@ -172,8 +268,12 @@ export default function JoinForm({ formType, selectedTab }) {
     } else if (fieldName === "phone_number" && !phoneRegex.test(value)) {
       newErrors.phone_number =
         "핸드폰번호는 01*으로 시작해야 하는 10~11자리 숫자여야 합니다.";
-    } else if (fieldName === "company_number" && !companyNoRegex.test(value)) {
-      newErrors.company_number = "사업자등록번호는 10자리 숫자입니다.";
+    } else if (
+      fieldName === "company_registration_number" &&
+      !companyNoRegex.test(value)
+    ) {
+      newErrors.company_registration_number =
+        "사업자등록번호는 10자리 숫자입니다.";
     }
 
     return newErrors;
@@ -188,16 +288,70 @@ export default function JoinForm({ formType, selectedTab }) {
     });
 
     setErrors(allErrors);
-    return Object.keys(allErrors).length === 0; // 에러가 없다면 유효성 통과
+    return (
+      Object.keys(allErrors).length === 0 &&
+      isUsernameAvailable &&
+      isCompanyNoAvailable
+    ); // 아이디 중복, 사업자인증 여부 체크 추가
   };
 
-  const handleSubmit = (e) => {
+  // 회원가입하기
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!isUsernameAvailable) {
+      alert("아이디 중복확인을 진행해주세요.");
+      return; // 제출을 막음
+    }
+
+    if (!isCompanyNoAvailable) {
+      alert("사업자등록번호 인증을 진행해주세요.");
+      return; // 제출을 막음
+    }
+
     if (validate()) {
       // 유효성 통과 시 API 호출 등 로직 수행
       console.log("폼 데이터가 유효합니다: ", joinFormData);
+
+      // 회원가입에 필요한 데이터 준비
+      const joinRequestDataForBuyer = {
+        username: joinFormData.username,
+        password: joinFormData.password, // 비밀번호
+        name: joinFormData.name, // 이름
+        phone_number: joinFormData.phone_number, // 전화번호
+      };
+
+      try {
+        const response = await fetch(
+          "https://estapi.openmarket.weniv.co.kr/accounts/buyer/signup/",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(joinRequestDataForBuyer), // 서버에 전달할 데이터
+          }
+        );
+
+        // 응답을 JSON으로 파싱
+        const data = await response.json(); // 비동기 처리이므로 await 사용
+
+        // 응답 상태 확인 후 처리
+        if (response.ok) {
+          console.log("회원가입 성공");
+          alert("회원가입 성공!");
+          window.location.href = "/login";
+        } else {
+          console.log("회원가입 실패", data);
+          alert("회원가입 실패: " + (data.error || "알 수 없는 오류"));
+        }
+      } catch (error) {
+        console.error("회원가입 오류", error.message);
+        alert("회원가입 중 오류가 발생했습니다: " + error.message);
+      }
     } else {
       console.log("폼 데이터에 오류가 있습니다: ", errors);
+      alert("폼 데이터에 오류가 있습니다.");
     }
   };
 
@@ -218,12 +372,24 @@ export default function JoinForm({ formType, selectedTab }) {
                 value={joinFormData.username}
                 onChange={handleChange}
                 onFocus={() => handleFocus("username")}
+                style={{
+                  border: errors.username ? "1px solid #EB5757" : "",
+                }}
               />
-              <Button type="button" onClick={handleCheckUsername}>
+              <Button
+                type="button"
+                onClick={handleCheckUsername}
+                disabled={errors.username}
+              >
                 중복확인
               </Button>
             </InputGroup>
             {errors.username && <AlertMsg>{errors.username}</AlertMsg>}
+            {!errors.username && isUsernameAvailable && (
+              <AlertMsg style={{ color: "var(--main-color)" }}>
+                멋진 아이디네요 :)
+              </AlertMsg>
+            )}
 
             <InputTitle>비밀번호</InputTitle>
             <label htmlFor="password" className="sr-only">
@@ -237,6 +403,9 @@ export default function JoinForm({ formType, selectedTab }) {
               onChange={handleChange}
               onFocus={() => handleFocus("password")}
               isValid={isPasswordValid}
+              style={{
+                border: errors.password ? "1px solid #EB5757" : "",
+              }}
             />
             {errors.password && <AlertMsg>{errors.password}</AlertMsg>}
 
@@ -252,6 +421,9 @@ export default function JoinForm({ formType, selectedTab }) {
               onChange={handleChange}
               onFocus={() => handleFocus("confirmPassword")}
               isValid={isConfirmPasswordValid}
+              style={{
+                border: errors.confirmPassword ? "1px solid #EB5757" : "",
+              }}
             />
             {errors.confirmPassword && (
               <AlertMsg>{errors.confirmPassword}</AlertMsg>
@@ -267,6 +439,9 @@ export default function JoinForm({ formType, selectedTab }) {
               value={joinFormData.name}
               onChange={handleChange}
               onFocus={() => handleFocus("name")}
+              style={{
+                border: errors.name ? "1px solid #EB5757" : "",
+              }}
             />
             {errors.name && <AlertMsg>{errors.name}</AlertMsg>}
 
@@ -295,17 +470,30 @@ export default function JoinForm({ formType, selectedTab }) {
                 <InputGroup>
                   <Input
                     id="companyNo"
-                    name="company_number"
+                    name="company_registration_number"
                     width="346px"
-                    value={joinFormData.company_number}
+                    value={joinFormData.company_registration_number}
                     onChange={handleChange}
-                    onFocus={() => handleFocus("company_number")}
+                    onFocus={() => handleFocus("company_registration_number")}
+                    style={{
+                      border: errors.company_registration_number
+                        ? "1px solid #EB5757"
+                        : "",
+                    }}
                   />
-                  <Button>인증</Button>
+                  <Button type="button" onClick={handleCheckComponyNo}>
+                    인증
+                  </Button>
                 </InputGroup>
-                {errors.company_number && (
-                  <AlertMsg>{errors.company_number}</AlertMsg>
+                {errors.company_registration_number && (
+                  <AlertMsg>{errors.company_registration_number}</AlertMsg>
                 )}
+                {!errors.company_registration_number &&
+                  isCompanyNoAvailable && (
+                    <AlertMsg style={{ color: "var(--main-color)" }}>
+                      사업자등록번호 인증이 완료됐습니다.
+                    </AlertMsg>
+                  )}
 
                 <InputTitle>스토어 이름</InputTitle>
                 <label htmlFor="storeName" className="sr-only">
@@ -317,6 +505,9 @@ export default function JoinForm({ formType, selectedTab }) {
                   value={joinFormData.storeName}
                   onChange={handleChange}
                   onFocus={() => handleFocus("storeName")}
+                  style={{
+                    border: errors.storeName ? "1px solid #EB5757" : "",
+                  }}
                 />
                 {errors.storeName && <AlertMsg>{errors.storeName}</AlertMsg>}
               </>
