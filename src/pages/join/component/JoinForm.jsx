@@ -122,7 +122,7 @@ export default function JoinForm({ formType, selectedTab }) {
     if (!joinFormData.company_registration_number) {
       setErrors((prev) => ({
         ...prev,
-        username: "사업자등록번호를 입력하세요.",
+        company_registration_number: "사업자등록번호를 입력하세요.",
       }));
       setIsCompanyNoAvailable(false);
       return;
