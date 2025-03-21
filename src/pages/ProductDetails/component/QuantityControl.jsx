@@ -1,14 +1,19 @@
 import styled from "styled-components";
 import minusIcon from "../../../assets/icon-minus-line.svg";
 import plusIcon from "../../../assets/icon-plus-line.svg";
-export default function QuantityControl() {
+
+export default function QuantityControl({
+  handleDecrease,
+  handleIncrease,
+  quantity,
+}) {
   return (
     <QuantityControlWrap>
-      <button>
+      <button onClick={handleDecrease}>
         <img src={minusIcon} alt="수량 줄이기" />
       </button>
-      <div style={{ fontWeight: "bold" }}>1</div>
-      <button>
+      <div style={{ fontWeight: "bold" }}>{quantity}</div>
+      <button onClick={handleIncrease}>
         <img src={plusIcon} alt="수량 늘리기" />
       </button>
     </QuantityControlWrap>
