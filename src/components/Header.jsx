@@ -62,19 +62,21 @@ export default function Header() {
           </SearchSection>
         </div>
         <Nav>
-          {/* 첫 번째 Nav 항목 */}
-          <NavButton
-            as={isLoggedIn && !isSeller ? Link : "div"}
-            to={isLoggedIn && !isSeller ? "/cart" : undefined}
-            onClick={(e) => {
-              if (!isLoggedIn) {
-                e.preventDefault();
-              }
-            }}
-          >
-            <img src={cartIcon} alt="장바구니로 이동하기" />
-            <NavText>장바구니</NavText>
-          </NavButton>
+          {/* 장바구니 Nav 항목 */}
+          {!isSeller && (
+            <NavButton
+              as={isLoggedIn ? Link : "div"}
+              to={isLoggedIn ? "/cart" : undefined}
+              onClick={(e) => {
+                if (!isLoggedIn) {
+                  e.preventDefault();
+                }
+              }}
+            >
+              <img src={cartIcon} alt="장바구니로 이동하기" />
+              <NavText>장바구니</NavText>
+            </NavButton>
+          )}
 
           {isLoggedIn && (
             <MyPageContainer>
@@ -90,7 +92,7 @@ export default function Header() {
             </MyPageContainer>
           )}
 
-          {/* 두 번째 Nav 항목 */}
+          {/* 로그인 여부에 따른 Nav 항목 */}
           {!isLoggedIn && (
             <Link to="/login">
               <NavButton>
@@ -100,6 +102,7 @@ export default function Header() {
             </Link>
           )}
 
+          {/* 판매자 센터 Nav 항목 */}
           {isLoggedIn && isSeller && (
             <Link to="/seller-center">
               <NavButton isSeller={true}>
