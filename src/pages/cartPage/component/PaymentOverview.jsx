@@ -2,14 +2,19 @@ import styled from "styled-components";
 import cartMinusIcon from "../../../assets/minus-icon_2.png";
 import cartPlusIcon from "../../../assets/plus-icon_2.png";
 
-const overviewData = [
-  { label: "총 상품 금액", value: "46,500" },
-  { label: "상품 할인", value: "0" },
-  { label: "배송비", value: "0" },
-  { label: "결제예정금액", value: "46,500" },
-];
+export default function PaymentOverview({
+  totalProductPrice,
+  productDiscount,
+  shippingFee,
+  paymentAmount,
+}) {
+  const overviewData = [
+    { label: "총 상품 금액", value: totalProductPrice.toLocaleString() },
+    { label: "상품 할인", value: productDiscount.toLocaleString() },
+    { label: "배송비", value: shippingFee.toLocaleString() },
+    { label: "결제예정금액", value: paymentAmount.toLocaleString() },
+  ];
 
-export default function PaymentOverview() {
   return (
     <PaymentOverviewWrap>
       <h3 className="sr-only">예상 결제 금액 보기</h3>
