@@ -1,21 +1,92 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
 import Header from "../../components/Header";
 import Button from "../../components/Button";
-import QuantityControlSection from "./component/QuantityControlSection";
+// import QuantityControlSection from "./component/QuantityControlSection";
 import PurchaseInfoSection from "./component/PurchaseInfoSection";
+import QuantityControl from "./component/QuantityControl";
 import {
   ProductImg,
   StoreName,
   ProductName,
   Price,
 } from "../../styles/mainStyle";
+import { useAuth } from "../../context/AuthContext";
+import LoginModal from "../../components/LoginModal";
+import CartModal from "./component/CartModal";
+import { getCookie } from "../../utils/cookieUtils";
 
 export default function ProductDetails() {
-  const { id } = useParams(); //구조분해할당 구문 사용 {id}
+  const { id } = useParams();
+  const navigate = useNavigate();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [purchaseQuantity, setPurchaseQuantity] = useState(1);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isCartModalOpen, setIsCartModalOpen] = useState(false);
+  const { isLoggedIn, isSeller } = useAuth();
+
+  const handleDecrease = () => {
+    if (purchaseQuantity > 1) {
+      setPurchaseQuantity(purchaseQuantity - 1);
+    }
+  };
+
+  const handleIncrease = () => {
+    setPurchaseQuantity(purchaseQuantity + 1);
+  };
+
+  const handleOrder = () => {
+    if (isLoggedIn && !isSeller) {
+      navigate("/payment");
+    } else {
+      setIsLoginModalOpen(true);
+    }
+  };
+
+  async function handleCart() {
+    if (isLoggedIn && !isSeller) {
+      try {
+        // 쿠키에서 accessToken 가져오기
+        const accessToken = getCookie("accessToken");
+
+        // accessToken이 없으면 로그인 모달을 열고 종료
+        if (!accessToken) {
+          setIsLoginModalOpen(true);
+          return;
+        }
+
+        const response = await fetch(
+          "https://estapi.openmarket.weniv.co.kr/cart/",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${accessToken}`, // 인증 헤더 추가
+            },
+            body: JSON.stringify({
+              product_id: product.id,
+              quantity: purchaseQuantity,
+            }),
+          }
+        );
+
+        const data = await response.json();
+
+        if (response.ok) {
+          console.log(data.detail);
+          setIsCartModalOpen(true); // 카트 모달이 성공적인 응답에서만 열림
+        } else {
+          console.log("장바구니에 상품 담기가 실패했습니다.");
+        }
+      } catch (error) {
+        console.error(error, "서버 오류가 발생했습니다.");
+      }
+    } else {
+      setIsLoginModalOpen(true);
+    }
+  }
 
   useEffect(() => {
     const fetchProductDetails = async () => {
@@ -32,7 +103,7 @@ export default function ProductDetails() {
       }
     };
     fetchProductDetails();
-  }, [id]); //URL의 id 값이 변경될 때마다 해당 ID에 맞는 상품 데이터를 다시 가져오도록 [id]를 의존성 배열에 포함
+  }, [id]);
 
   if (loading) {
     return <div>로딩 중...</div>;
@@ -41,6 +112,8 @@ export default function ProductDetails() {
   if (!product) {
     return <div>상품 정보가 없습니다.</div>;
   }
+
+  const isSellerUser = isLoggedIn && isSeller;
 
   return (
     <>
@@ -56,12 +129,22 @@ export default function ProductDetails() {
           <p style={{ color: "var(--sub-color", marginTop: "138px" }}>
             택배배송 / 무료배송
           </p>
-          <QuantityControlSection />
+          <QuantitySection>
+            <QuantityControl
+              handleDecrease={handleDecrease}
+              handleIncrease={handleIncrease}
+              quantity={purchaseQuantity}
+            />
+          </QuantitySection>
           <OrderSummary>
             <p>총 상품 금액</p>
             <div>
               <p>
-                총 수량 <span style={{ color: "var(--main-color)" }}>1</span>개
+                총 수량{" "}
+                <span style={{ color: "var(--main-color)" }}>
+                  {purchaseQuantity}
+                </span>
+                개
               </p>
               <Price
                 variant="detail"
@@ -69,25 +152,42 @@ export default function ProductDetails() {
                   color: "var(--main-color)",
                 }}
               >
-                {product.price.toLocaleString()}
+                {(product.price * purchaseQuantity).toLocaleString()}
               </Price>
               <span style={{ color: "var(--main-color)" }}>원</span>
             </div>
           </OrderSummary>
-          <Button style={{ width: "416px", height: "60px" }}>바로 구매</Button>
           <Button
             style={{
-              width: "200px",
+              width: "416px",
               height: "60px",
-              backgroundColor: "var(--sub-color)",
-              marginLeft: "14px",
+              backgroundColor: isSellerUser ? "#c4c4c4" : "var(--main-color)",
+              cursor: isSellerUser ? "not-allowed" : "pointer",
             }}
+            onClick={handleOrder}
+            disabled={isSellerUser}
+          >
+            바로 구매
+          </Button>
+          <Button
+            width="200px"
+            height="60px"
+            backgroundColor={isSellerUser ? "#c4c4c4" : "var(--sub-color)"}
+            marginLeft="14px"
+            onClick={handleCart}
+            disabled={isSellerUser}
           >
             장바구니
           </Button>
         </ProductDetail>
       </ProductInfoSection>
       <PurchaseInfoSection />
+      {isLoginModalOpen && (
+        <LoginModal onClose={() => setIsLoginModalOpen(false)} />
+      )}
+      {isCartModalOpen && (
+        <CartModal onClose={() => setIsCartModalOpen(false)} />
+      )}
     </>
   );
 }
@@ -108,6 +208,18 @@ const ProductDetail = styled.div`
     font-weight: bold;
     margin-top: 22px;
   }
+`;
+
+const QuantitySection = styled.div`
+  display: flex;
+  align-items: center;
+  width: 630px;
+  height: 110px;
+  border: 1px solid #c4c4c4;
+  border-left: none;
+  border-right: none;
+  margin-top: 20px;
+  margin-bottom: 32px;
 `;
 
 const OrderSummary = styled.div`
