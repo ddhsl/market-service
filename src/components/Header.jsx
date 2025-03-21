@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import {
   Title,
@@ -20,6 +20,7 @@ import { useState } from "react";
 export default function Header() {
   const { isLoggedIn, isSeller, logout } = useAuth();
   const [showLogout, setShowLogout] = useState(false);
+  const navigate = useNavigate();
 
   const handleMyPageClick = (e) => {
     if (isLoggedIn) {
@@ -30,7 +31,8 @@ export default function Header() {
 
   const handleLogout = () => {
     logout();
-    setShowLogout(false); // 로그아웃 후 로그아웃 버튼 숨기기
+    navigate("/");
+    setShowLogout(false);
   };
 
   return (
@@ -61,14 +63,18 @@ export default function Header() {
         </div>
         <Nav>
           {/* 첫 번째 Nav 항목 */}
-          {(!isLoggedIn || !isSeller) && (
-            <Link to="/cart">
-              <NavButton>
-                <img src={cartIcon} alt="장바구니로 이동하기" />
-                <NavText>장바구니</NavText>
-              </NavButton>
-            </Link>
-          )}
+          <NavButton
+            as={isLoggedIn && !isSeller ? Link : "div"}
+            to={isLoggedIn && !isSeller ? "/cart" : undefined}
+            onClick={(e) => {
+              if (!isLoggedIn) {
+                e.preventDefault();
+              }
+            }}
+          >
+            <img src={cartIcon} alt="장바구니로 이동하기" />
+            <NavText>장바구니</NavText>
+          </NavButton>
 
           {isLoggedIn && (
             <MyPageContainer>
@@ -121,7 +127,7 @@ const LogoutBox = styled.button`
   border-radius: 5px;
   position: absolute;
   z-index: 1000;
-  top: 120%; /* "마이페이지" 버튼 바로 아래에 위치 */
+  top: 120%;
   left: -7%;
   background-color: #fff;
   padding: 4px;
