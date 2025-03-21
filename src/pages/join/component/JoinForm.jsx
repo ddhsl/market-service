@@ -25,7 +25,7 @@ export default function JoinForm({ formType, selectedTab }) {
     name: "",
     phone_number: "",
     company_registration_number: "",
-    storeName: "",
+    store_name: "",
   });
 
   const [errors, setErrors] = useState({});
@@ -48,7 +48,7 @@ export default function JoinForm({ formType, selectedTab }) {
         name: "",
         phone_number: "",
         company_registration_number: "",
-        storeName: "",
+        store_name: "",
       });
     }
 
@@ -178,7 +178,7 @@ export default function JoinForm({ formType, selectedTab }) {
     "name",
     "phone_number",
     "company_registration_number",
-    "storeName",
+    "store_name",
   ];
 
   // onFocus 핸들러: 현재 포커스된 필드보다 위에 있는 필드들의 값이 없으면 에러 메시지를 설정
@@ -314,24 +314,34 @@ export default function JoinForm({ formType, selectedTab }) {
       console.log("폼 데이터가 유효합니다: ", joinFormData);
 
       // 회원가입에 필요한 데이터 준비
-      const joinRequestDataForBuyer = {
+      let joinRequestData = {
         username: joinFormData.username,
-        password: joinFormData.password, // 비밀번호
-        name: joinFormData.name, // 이름
-        phone_number: joinFormData.phone_number, // 전화번호
+        password: joinFormData.password,
+        name: joinFormData.name,
+        phone_number: joinFormData.phone_number,
       };
 
+      // 판매자일 경우 추가 정보
+      if (selectedTab === "seller") {
+        joinRequestData.company_registration_number =
+          joinFormData.company_registration_number;
+        joinRequestData.store_name = joinFormData.store_name;
+      }
+
+      // 엔드포인트 설정
+      const endpoint =
+        selectedTab === "seller"
+          ? "https://estapi.openmarket.weniv.co.kr/accounts/seller/signup/"
+          : "https://estapi.openmarket.weniv.co.kr/accounts/buyer/signup/";
+
       try {
-        const response = await fetch(
-          "https://estapi.openmarket.weniv.co.kr/accounts/buyer/signup/",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(joinRequestDataForBuyer), // 서버에 전달할 데이터
-          }
-        );
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(joinRequestData),
+        });
 
         // 응답을 JSON으로 파싱
         const data = await response.json(); // 비동기 처리이므로 await 사용
@@ -464,12 +474,15 @@ export default function JoinForm({ formType, selectedTab }) {
                 <InputTitle style={{ marginTop: "50px" }}>
                   사업자 등록번호
                 </InputTitle>
-                <label htmlFor="companyNo" className="sr-only">
+                <label
+                  htmlFor="company_registration_number"
+                  className="sr-only"
+                >
                   사업자 등록번호를 입력하세요
                 </label>
                 <InputGroup>
                   <Input
-                    id="companyNo"
+                    id="company_registration_number"
                     name="company_registration_number"
                     width="346px"
                     value={joinFormData.company_registration_number}
@@ -496,20 +509,20 @@ export default function JoinForm({ formType, selectedTab }) {
                   )}
 
                 <InputTitle>스토어 이름</InputTitle>
-                <label htmlFor="storeName" className="sr-only">
+                <label htmlFor="store_name" className="sr-only">
                   스토어 이름을 입력하세요
                 </label>
                 <Input
-                  id="storeName"
-                  name="storeName"
-                  value={joinFormData.storeName}
+                  id="store_name"
+                  name="store_name"
+                  value={joinFormData.store_name}
                   onChange={handleChange}
-                  onFocus={() => handleFocus("storeName")}
+                  onFocus={() => handleFocus("store_name")}
                   style={{
-                    border: errors.storeName ? "1px solid #EB5757" : "",
+                    border: errors.store_name ? "1px solid #EB5757" : "",
                   }}
                 />
-                {errors.storeName && <AlertMsg>{errors.storeName}</AlertMsg>}
+                {errors.store_name && <AlertMsg>{errors.store_name}</AlertMsg>}
               </>
             )}
           </InputField>
