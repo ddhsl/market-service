@@ -26,7 +26,7 @@ export default function Login() {
         handleTab={handleTab}
         selectedTab={selectedTab}
       />
-      <LoginForm />
+      <LoginForm selectedTab={selectedTab} />
       <AccountLinks />
     </LoginWrap>
   );
