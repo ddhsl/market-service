@@ -2,7 +2,7 @@ import styled from "styled-components";
 import Button from "../../../components/Button";
 import checkbox from "../../../assets/check-box.svg";
 
-export default function FinalPaymentDetails() {
+export default function FinalPaymentDetails({ totalPrice }) {
   return (
     <PaymentDetails>
       <section>
@@ -10,7 +10,7 @@ export default function FinalPaymentDetails() {
         <div>
           <span>- 상품금액</span>
           <span>
-            46,500
+            {totalPrice.toLocaleString()}
             <span>원</span>
           </span>
         </div>
@@ -33,7 +33,10 @@ export default function FinalPaymentDetails() {
         </div>
         <div>
           <span>- 결제금액</span>
-          <span style={{ fontSize: "24px", color: "#EB5757" }}>46,500원</span>
+          <span style={{ fontSize: "24px", color: "#EB5757" }}>
+            {" "}
+            {totalPrice.toLocaleString()}원
+          </span>
         </div>
       </section>
       <section>
