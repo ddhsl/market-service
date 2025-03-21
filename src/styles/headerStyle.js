@@ -50,11 +50,14 @@ export const NavButton = styled.button`
   align-items: center;
   justify-content: center;
   gap: 4px;
+  width: ${(props) => (props.isSeller ? "168px" : "auto")};
+  height: ${(props) => (props.isSeller ? "54px" : "auto")};
+  border-radius: ${(props) => (props.isSeller ? "5px" : "0")};
   background: ${(props) => (props.isSeller ? "var(--main-color)" : "none")};
-  color: ${(props) => (props.isSeller ? "white" : "var(--sub-color)")};
 `;
 
 export const NavText = styled.p`
-  color: var(--sub-color);
-  font-size: 14px;
+  color: ${(props) => (props.isSeller ? "white" : "var(--sub-color)")};
+  font-size: ${(props) => (props.isSeller ? "18px" : "14px")};
+  font-weight: ${(props) => (props.isSeller ? "700" : "400")};
 `;
