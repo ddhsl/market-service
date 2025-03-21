@@ -21,6 +21,7 @@ const variants = {
       width: "370px",
       height: "370px",
       marginBottom: "16px",
+      cursor: "pointer",
     },
     storeName: { color: "var(--sub-color)", marginBottom: "10px" },
     productName: { fontSize: "18px", marginBottom: "10px" },
@@ -44,6 +45,7 @@ export const ProductImg = styled.img`
   width: ${({ variant }) => variants[variant]?.productImg.width};
   height: ${({ variant }) => variants[variant]?.productImg.height};
   margin-bottom: ${({ variant }) => variants[variant]?.productImg.marginBottom};
+  cursor: ${({ variant }) => variants[variant]?.productImg.cursor};
 `;
 
 export const StoreName = styled.p`
