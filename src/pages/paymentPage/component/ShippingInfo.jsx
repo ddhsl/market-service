@@ -4,7 +4,7 @@ import ShippingForm from "./ShippingForm";
 import PaymentForm from "./PaymentForm";
 import FinalPaymentDetails from "./FinalPaymentDetails";
 
-export default function ShippingInfo() {
+export default function ShippingInfo({ totalPrice }) {
   return (
     <section>
       <ShippingTitle>배송정보</ShippingTitle>
@@ -17,7 +17,7 @@ export default function ShippingInfo() {
         </div>
         <div style={{ flexGrow: "1" }}>
           <FinalPaymentTitle>최종결제 정보</FinalPaymentTitle>
-          <FinalPaymentDetails></FinalPaymentDetails>
+          <FinalPaymentDetails totalPrice={totalPrice}></FinalPaymentDetails>
         </div>
       </div>
     </section>
