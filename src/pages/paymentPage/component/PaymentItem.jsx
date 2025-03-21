@@ -1,11 +1,25 @@
 import styled from "styled-components";
 
-export default function PaymentItem() {
+export default function PaymentItem({ selectedItems }) {
   return (
-    <PaymentItemField>
-      <PaymentItemField>
-        <PaymentItemWrap>
-          <PaymentItemContent flex={4}>아이템</PaymentItemContent>
+    <PaymentItemContainer>
+      {selectedItems.map((item, index) => (
+        <PaymentItemWrapper key={index}>
+          <PaymentItemContent
+            flex={4}
+            style={{
+              display: "flex",
+              justifyContent: "flex-start",
+              gap: "36px",
+            }}
+          >
+            <img src={item.product?.image} alt={item.product?.name} />
+            <div>
+              <p>{item.product?.seller?.store_name}</p>
+              <p>{item.product?.name}</p>
+              <p>수량: {item.quantity}개</p>
+            </div>
+          </PaymentItemContent>
           <PaymentItemContent flex={2} style={{ color: "var(--sub-color)" }}>
             -
           </PaymentItemContent>
@@ -13,31 +27,53 @@ export default function PaymentItem() {
             무료배송
           </PaymentItemContent>
           <PaymentItemContent flex={2} style={{ fontWeight: "bold" }}>
-            17,500원
+            {(item.product?.price * item.quantity).toLocaleString()}원
           </PaymentItemContent>
-        </PaymentItemWrap>
-      </PaymentItemField>
-    </PaymentItemField>
+        </PaymentItemWrapper>
+      ))}
+    </PaymentItemContainer>
   );
 }
 
-const PaymentItemField = styled.article`
+const PaymentItemContainer = styled.article`
+  width: 100%;
+`;
+
+const PaymentItemWrapper = styled.ul`
+  display: flex;
+  align-items: center;
   width: 100%;
   height: 130px;
   border-bottom: 1px solid #c4c4c4;
-  display: flex;
-  align-items: center;
-`;
-
-const PaymentItemWrap = styled.ul`
-  display: flex;
-  align-items: center;
-  width: 100%; /* 자식 항목들이 100% 너비를 차지하도록 */
 `;
 
 const PaymentItemContent = styled.li`
   flex: ${({ flex }) => flex};
   display: flex;
   justify-content: center;
+  align-items: center;
   font-size: 18px;
+
+  & > div {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    justify-content: center;
+    & > p:nth-child(1) {
+      font-size: 14px;
+      color: var(--sub-color);
+    }
+    & > p:nth-child(2) {
+      font-size: 18px;
+    }
+    & > p:nth-child(3) {
+      font-size: 14px;
+      color: var(--sub-color);
+    }
+  }
+  & > img {
+    width: 104px;
+    height: 104px;
+    border-radius: 10px;
+  }
 `;
