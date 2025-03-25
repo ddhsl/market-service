@@ -19,6 +19,11 @@ const AuthContext = createContext({
 export const AuthContextProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isSeller, setIsSeller] = useState(false);
+  const [loginError, setLoginError] = useState("");
+  const [loginFormData, setLoginFormData] = useState({
+    username: "",
+    password: "",
+  });
 
   useEffect(() => {
     // 쿠키에서 토큰 가져오기
@@ -32,7 +37,7 @@ export const AuthContextProvider = ({ children }) => {
     }
   }, []);
 
-  const login = (userType, accessToken, refreshToken) => {
+  const login = (userType, accessToken, refreshToken, userData) => {
     setIsLoggedIn(true);
     setIsSeller(userType === "seller");
     // 쿠키에 토큰 저장
@@ -49,10 +54,25 @@ export const AuthContextProvider = ({ children }) => {
     document.cookie = "refreshToken=; Max-Age=0; Path=/";
     document.cookie = "userType=; Max-Age=0; Path=/";
     document.cookie = "csrftoken=; Max-Age=0; Path=/";
+    // 로컬스토리지 데이터 제거
+    localStorage.removeItem("username");
+    localStorage.removeItem("name");
+    localStorage.removeItem("user_type");
   };
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, isSeller, login, logout }}>
+    <AuthContext.Provider
+      value={{
+        isLoggedIn,
+        isSeller,
+        login,
+        logout,
+        loginError,
+        setLoginError,
+        loginFormData,
+        setLoginFormData,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
