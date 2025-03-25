@@ -1,8 +1,20 @@
 import styled from "styled-components";
+import { useState } from "react";
 import Button from "../../../components/Button";
 import checkbox from "../../../assets/check-box.svg";
+import checkboxFill from "../../../assets/check-fill-box.svg";
 
-export default function FinalPaymentDetails({ totalPrice }) {
+export default function FinalPaymentDetails({
+  totalPrice,
+  totalShippingFee,
+  handleOrderSubmit,
+}) {
+  const [isAgreed, setIsAgreed] = useState(false);
+
+  const handleAgreementChange = () => {
+    setIsAgreed((prev) => !prev);
+  };
+
   return (
     <PaymentDetails>
       <section>
@@ -28,25 +40,39 @@ export default function FinalPaymentDetails({ totalPrice }) {
         >
           <span>- 배송비</span>
           <span>
-            0 <span>원</span>
+            {totalShippingFee.toLocaleString()}
+            <span>원</span>
           </span>
         </div>
         <div>
           <span>- 결제금액</span>
           <span style={{ fontSize: "24px", color: "#EB5757" }}>
             {" "}
-            {totalPrice.toLocaleString()}원
+            {(totalPrice + totalShippingFee).toLocaleString()}원
           </span>
         </div>
       </section>
       <section>
         <h3 className="sr-only">동의 및 결제하기</h3>
         <div style={{ display: "flex", gap: "10px" }}>
-          <img src={checkbox} alt="주문 내용에 동의" />
+          <img
+            onClick={handleAgreementChange}
+            src={isAgreed ? checkboxFill : checkbox}
+            alt="주문 내용에 동의"
+          />
+
           <p>주문 내용을 확인하였으며, 정보 제공 등에 동의합니다.</p>
         </div>
         <div style={{ display: "flex", justifyContent: "center" }}>
-          <Button>결제하기</Button>
+          <Button
+            onClick={handleOrderSubmit}
+            style={{
+              backgroundColor: isAgreed ? "var(--main-color)" : "#D3D3D3",
+              cursor: isAgreed ? "pointer" : "not-allowed",
+            }}
+          >
+            결제하기
+          </Button>
         </div>
       </section>
     </PaymentDetails>
