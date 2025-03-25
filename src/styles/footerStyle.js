@@ -21,11 +21,11 @@ export const PolicySection = styled.section`
 
 export const PolicyList = styled.ul`
   display: flex;
-  li > a::before {
+  li > button::before {
     content: "|";
     margin: auto 14px;
   }
-  li:first-child a::before {
+  li:first-child button::before {
     content: none;
   }
 `;
