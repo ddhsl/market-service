@@ -1,9 +1,15 @@
 import styled from "styled-components";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Header from "../../components/Header";
 import { CartField, CartTitle, CartLabel } from "../cartPage/Cart";
 import PaymentItem from "./component/PaymentItem";
-import ShippingInfo from "./component/ShippingInfo";
 import { useLocation } from "react-router-dom";
+import OrdererForm from "./component/OrdererForm";
+import ShippingForm from "./component/ShippingForm";
+import PaymentForm from "./component/PaymentForm";
+import FinalPaymentDetails from "./component/FinalPaymentDetails";
+import { getCookie } from "../../utils/cookieUtils";
 
 const paymentLabels = [
   { text: "상품정보", flex: 4 },
@@ -13,13 +19,175 @@ const paymentLabels = [
 ];
 
 export default function Payment() {
+  const navigate = useNavigate();
   const location = useLocation();
   const selectedItems = location.state?.selectedItems || [];
 
-  // 총 금액 계산
-  const totalPrice = selectedItems.reduce((acc, item) => {
-    return acc + item.product?.price * item.quantity;
-  }, 0);
+  // 배송정보 상태 변수 선언
+  const [recipient, setRecipient] = useState("");
+  const [recipientPhone, setRecipientPhone] = useState("");
+  const [shippingAddress, setShippingAddress] = useState("");
+  const [detailAddress, setDetailAddress] = useState("");
+  const [shippingMessage, setShippingMessage] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("card");
+  const [ordererName, setOrdererName] = useState("");
+  const [ordererPhone, setOrdererPhone] = useState({
+    first: "",
+    middle: "",
+    last: "",
+  });
+  const [ordererEmail, setOrdererEmail] = useState("");
+
+  // 총 금액 및 배송비 계산
+  const { totalPrice, totalShippingFee } = selectedItems.reduce(
+    (acc, item) => {
+      const itemPrice = item.product?.price * item.quantity;
+      const itemShippingFee = item.product?.shipping_fee || 0;
+      acc.totalPrice += itemPrice;
+      acc.totalShippingFee += itemShippingFee;
+      return acc;
+    },
+    { totalPrice: 0, totalShippingFee: 0 }
+  );
+
+  // 주문 생성 함수
+  const handleOrderSubmit = async () => {
+    try {
+      const accessToken = getCookie("accessToken");
+
+      if (selectedItems.length > 1) {
+        // 장바구니에서 여러 아이템을 주문하는 경우
+        const cartItems = selectedItems.map((item) => item.product?.id);
+        const orderData = {
+          order_type: "cart_order",
+          cart_items: cartItems,
+          total_price: totalPrice + totalShippingFee,
+          receiver: recipient,
+          receiver_phone_number: `${recipientPhone.first}${recipientPhone.middle}${recipientPhone.last}`,
+          address: `${shippingAddress} ${detailAddress}`,
+          delivery_message: shippingMessage,
+          payment_method: paymentMethod,
+        };
+
+        const response = await fetch(
+          "https://estapi.openmarket.weniv.co.kr/order/",
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(orderData),
+          }
+        );
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error("주문 생성에 실패했습니다. 응답:", errorText);
+          throw new Error("주문 생성에 실패했습니다.");
+        }
+
+        const result = await response.json();
+        // 주문 생성 성공 시 처리할 로직 추가
+        console.log("주문 생성 성공:", result);
+        navigate("/mypage");
+      } else {
+        // 개별 상품을 주문하는 경우
+        for (const item of selectedItems) {
+          const orderData = {
+            order_type: "direct_order",
+            product: item.product?.id,
+            quantity: item.quantity,
+            total_price: totalPrice + totalShippingFee,
+            receiver: recipient,
+            receiver_phone_number: `${recipientPhone.first}${recipientPhone.middle}${recipientPhone.last}`,
+            address: `${shippingAddress} ${detailAddress}`,
+            delivery_message: shippingMessage,
+            payment_method: paymentMethod,
+          };
+
+          const response = await fetch(
+            "https://estapi.openmarket.weniv.co.kr/order/",
+            {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(orderData),
+            }
+          );
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error("주문 생성에 실패했습니다. 응답:", errorText);
+            throw new Error("주문 생성에 실패했습니다.");
+          }
+
+          const result = await response.json();
+          console.log("주문 생성 성공:", result);
+          alert("성공적으로 주문이 생성됐습니다.");
+          navigate("/mypage");
+        }
+      }
+    } catch (error) {
+      // 오류 처리
+      console.error("주문 생성 오류:", error);
+      alert("주문 생성 오류:", error);
+    }
+  };
+
+  // 주문자 휴대폰 번호를 하나의 문자열로 결합
+  const ordererPhoneNumber = `${ordererPhone.first}${ordererPhone.middle}${ordererPhone.last}`;
+  const recipientPhoneNumber = `${recipientPhone.first}${recipientPhone.middle}${recipientPhone.last}`;
+
+  const submitOrder = () => {
+    // 필수 필드 검증
+    if (!ordererName.trim()) {
+      alert("이름을 입력해주세요.");
+      return;
+    }
+
+    // 휴대폰 번호 유효성 검사
+    const phoneRegex = /^\d{11}$/;
+    if (!ordererPhoneNumber) {
+      alert("주문자 휴대폰 번호를 입력해주세요.");
+      return;
+    } else if (!phoneRegex.test(ordererPhoneNumber)) {
+      alert("주문자 휴대폰 번호는 11자리의 숫자로 입력해야 합니다.");
+      return;
+    }
+
+    // 이메일 유효성 검사
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!ordererEmail.trim()) {
+      alert("이메일을 입력해주세요.");
+      return;
+    } else if (!emailRegex.test(ordererEmail)) {
+      alert("유효한 이메일 주소를 입력해주세요.");
+      return;
+    }
+
+    if (!recipient.trim()) {
+      alert("수령인을 입력해주세요.");
+      return;
+    }
+
+    if (!recipientPhoneNumber) {
+      alert("수령인 휴대폰 번호를 입력해주세요.");
+      return;
+    } else if (!phoneRegex.test(recipientPhoneNumber)) {
+      alert("수령인 휴대폰 번호는 11자리의 숫자로 입력해야 합니다.");
+      return;
+    }
+
+    if (!shippingAddress || !detailAddress) {
+      alert("배송지 주소를 입력해주세요.");
+      return;
+    }
+
+    handleOrderSubmit();
+  };
 
   return (
     <>
@@ -33,12 +201,57 @@ export default function Payment() {
             </PaymentLabel>
           ))}
         </PaymentField>
-        <PaymentItem selectedItems={selectedItems} />
+        <PaymentItem
+          selectedItems={selectedItems}
+          totalPrice={totalPrice}
+          totalShippingFee={totalShippingFee}
+        />
         <TotalPrice>
           <span>총 주문금액</span>
-          <span>{totalPrice.toLocaleString()}원</span>
+          <span> {(totalPrice + totalShippingFee).toLocaleString()}원</span>
         </TotalPrice>
-        <ShippingInfo totalPrice={totalPrice} />
+        <section>
+          <ShippingTitle>배송정보</ShippingTitle>
+          <OrdererForm
+            ordererName={ordererName}
+            setOrdererName={setOrdererName}
+            ordererPhone={ordererPhone}
+            setOrdererPhone={setOrdererPhone}
+            ordererEmail={ordererEmail}
+            setOrdererEmail={setOrdererEmail}
+            onSubmit={submitOrder}
+          ></OrdererForm>
+          <ShippingForm
+            recipient={recipient}
+            setRecipient={setRecipient}
+            recipientPhone={recipientPhone}
+            setRecipientPhone={setRecipientPhone}
+            shippingAddress={shippingAddress}
+            setShippingAddress={setShippingAddress}
+            detailAddress={detailAddress}
+            setDetailAddress={setDetailAddress}
+            shippingMessage={shippingMessage}
+            setShippingMessage={setShippingMessage}
+            onSubmit={submitOrder}
+          ></ShippingForm>
+          <div style={{ marginTop: "70px", display: "flex", gap: "40px" }}>
+            <div>
+              <PaymentMethodTitle>결제수단</PaymentMethodTitle>
+              <PaymentForm
+                paymentMethod={paymentMethod}
+                setPaymentMethod={setPaymentMethod}
+              ></PaymentForm>
+            </div>
+            <div style={{ flexGrow: "1" }}>
+              <FinalPaymentTitle>최종결제 정보</FinalPaymentTitle>
+              <FinalPaymentDetails
+                totalPrice={totalPrice}
+                totalShippingFee={totalShippingFee}
+                handleOrderSubmit={submitOrder}
+              />
+            </div>
+          </div>
+        </section>
       </PaymentMain>
     </>
   );
@@ -69,5 +282,35 @@ const TotalPrice = styled.div`
     color: #eb5757;
     font-weight: bold;
     font-size: 24px;
+  }
+`;
+
+const ShippingTitle = styled.h3`
+  font-weight: bold;
+  font-size: 24px;
+  padding-bottom: 18px;
+  border-bottom: 2px solid #c4c4c4;
+`;
+const PaymentMethodTitle = styled.h3`
+  font-weight: bold;
+  font-size: 24px;
+  padding-bottom: 18px;
+`;
+
+const FinalPaymentTitle = styled.h3`
+  font-weight: bold;
+  font-size: 24px;
+  padding-bottom: 18px;
+`;
+
+export const ShippingInputWrap = styled.div`
+  width: 100%;
+  height: 56px;
+  border-bottom: 1px solid #c4c4c4;
+  display: flex;
+  align-items: center;
+
+  label {
+    width: 170px;
   }
 `;
