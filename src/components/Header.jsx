@@ -186,5 +186,6 @@ const DropdownItem = styled.button`
   &:hover {
     background-color: #f5f5f5;
     color: var(--main-color);
+    font-weight: bold;
   }
 `;
