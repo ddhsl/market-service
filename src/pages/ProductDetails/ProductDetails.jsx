@@ -3,7 +3,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
 import Header from "../../components/Header";
 import Button from "../../components/Button";
-// import QuantityControlSection from "./component/QuantityControlSection";
 import PurchaseInfoSection from "./component/PurchaseInfoSection";
 import QuantityControl from "./component/QuantityControl";
 import {
@@ -35,14 +34,6 @@ export default function ProductDetails() {
 
   const handleIncrease = () => {
     setPurchaseQuantity(purchaseQuantity + 1);
-  };
-
-  const handleOrder = () => {
-    if (isLoggedIn && !isSeller) {
-      navigate("/payment");
-    } else {
-      setIsLoginModalOpen(true);
-    }
   };
 
   async function handleCart() {
@@ -114,6 +105,29 @@ export default function ProductDetails() {
   }
 
   const isSellerUser = isLoggedIn && isSeller;
+  const isAvailable = product.stock > 0;
+
+  const handleDirectPurchase = () => {
+    if (isLoggedIn && !isSeller) {
+      const selectedItem = {
+        product: {
+          id: product.id,
+          image: product.image,
+          name: product.name,
+          price: product.price,
+          shipping_method: product.shipping_method,
+          shipping_fee: product.shipping_fee,
+          seller: {
+            store_name: product.seller.store_name,
+          },
+        },
+        quantity: purchaseQuantity,
+      };
+      navigate("/payment", { state: { selectedItems: [selectedItem] } });
+    } else {
+      setIsLoginModalOpen(true);
+    }
+  };
 
   return (
     <>
@@ -124,8 +138,10 @@ export default function ProductDetails() {
         <ProductDetail>
           <StoreName variant="detail">{product.seller.store_name}</StoreName>
           <ProductName variant="detail">{product.name}</ProductName>
-          <Price variant="detail">{product.price.toLocaleString()} </Price>
-          <span>원</span>
+          <Price variant="detail">
+            {product.price.toLocaleString()} <span>원</span>{" "}
+          </Price>
+
           <p style={{ color: "var(--sub-color", marginTop: "138px" }}>
             택배배송 / 무료배송
           </p>
@@ -134,6 +150,7 @@ export default function ProductDetails() {
               handleDecrease={handleDecrease}
               handleIncrease={handleIncrease}
               quantity={purchaseQuantity}
+              isAvailable={isAvailable}
             />
           </QuantitySection>
           <OrderSummary>
@@ -153,32 +170,43 @@ export default function ProductDetails() {
                 }}
               >
                 {(product.price * purchaseQuantity).toLocaleString()}
+                <span style={{ color: "var(--main-color)", marginLeft: "4px" }}>
+                  원
+                </span>
               </Price>
-              <span style={{ color: "var(--main-color)" }}>원</span>
             </div>
           </OrderSummary>
+
           <Button
             style={{
               width: "416px",
               height: "60px",
-              backgroundColor: isSellerUser ? "#c4c4c4" : "var(--main-color)",
-              cursor: isSellerUser ? "not-allowed" : "pointer",
+              backgroundColor:
+                isSellerUser || !isAvailable ? "#c4c4c4" : "var(--main-color)",
+              cursor: isSellerUser || !isAvailable ? "not-allowed" : "pointer",
             }}
-            onClick={handleOrder}
-            disabled={isSellerUser}
+            onClick={handleDirectPurchase}
+            disabled={isSellerUser || !isAvailable}
           >
             바로 구매
           </Button>
           <Button
             width="200px"
             height="60px"
-            backgroundColor={isSellerUser ? "#c4c4c4" : "var(--sub-color)"}
+            backgroundColor={
+              isSellerUser || !isAvailable ? "#c4c4c4" : "var(--sub-color)"
+            }
             marginLeft="14px"
             onClick={handleCart}
-            disabled={isSellerUser}
+            disabled={isSellerUser || !isAvailable}
           >
             장바구니
           </Button>
+          {!isAvailable && (
+            <p style={{ color: "red", marginTop: "13px" }}>
+              *현재 재고가 없습니다.
+            </p>
+          )}
         </ProductDetail>
       </ProductInfoSection>
       <PurchaseInfoSection />
@@ -237,12 +265,12 @@ const OrderSummary = styled.div`
     align-items: baseline;
   }
 
-  & > div > p {
+  & > div > p:nth-child(1) {
     font-size: 18px;
     color: var(--sub-color);
   }
 
-  & > div > p::after {
+  & > div > p:nth-child(1)::after {
     content: "|";
     margin-left: 11px;
     margin-right: 11px;
