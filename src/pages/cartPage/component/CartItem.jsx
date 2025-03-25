@@ -57,7 +57,7 @@ export default function CartItem({
             <p>{product.seller?.store_name}</p>
             <p>{product.name}</p>
             <p>{product.price.toLocaleString()}원</p>
-            <p>무료배송 / 택배배송</p>
+            <p>택배배송 / 무료배송</p>
           </div>
         </CartItemContent>
         <CartItemContent flex={3}>
