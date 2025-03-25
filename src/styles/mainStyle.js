@@ -46,12 +46,17 @@ export const ProductImg = styled.img`
   height: ${({ variant }) => variants[variant]?.productImg.height};
   margin-bottom: ${({ variant }) => variants[variant]?.productImg.marginBottom};
   cursor: ${({ variant }) => variants[variant]?.productImg.cursor};
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: ${({ variant }) =>
+    variant === "main" ? "transform 0.3s ease, box-shadow 0.3s ease" : "none"};
 
-  &:hover {
-    transform: scale(1.03);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  }
+  ${({ variant }) =>
+    variant === "main" &&
+    `
+    &:hover {
+      transform: scale(1.03);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+  `}
 `;
 
 export const StoreName = styled.p`
