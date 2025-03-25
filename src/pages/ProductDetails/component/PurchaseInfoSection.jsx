@@ -50,6 +50,9 @@ const PurchaseInfoTab = styled.li`
   align-items: center;
   cursor: pointer;
   transition: all 0.3s ease;
+  &:hover {
+    color: var(--main-color);
+  }
 
   ${(props) =>
     props.isSelected &&
@@ -72,6 +75,7 @@ const TabContent = styled.div`
   opacity: 0;
   transform: translateY(20px);
   animation: fadeIn 0.5s forwards;
+  color: var(--sub-color);
 
   @keyframes fadeIn {
     to {
