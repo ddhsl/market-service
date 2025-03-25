@@ -168,8 +168,16 @@ export default function Cart() {
     (total, item) => total + item.product.price * item.quantity,
     0
   );
+
+  // 배송비 계산
+  const shippingFee = cartItems.reduce((totalFee, item) => {
+    if (item.product?.shipping_method) {
+      return totalFee + (item.product?.shipping_fee || 0);
+    }
+    return totalFee;
+  }, 0);
+
   const productDiscount = 0;
-  const shippingFee = 0;
   const paymentAmount = totalProductPrice - productDiscount + shippingFee;
 
   return (
