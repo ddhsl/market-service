@@ -42,10 +42,6 @@ export default function SearchResults() {
     return <div>로딩 중...</div>;
   }
 
-  // if (products.length === 0) {
-  //   return <div>상품 정보가 없습니다.</div>;
-  // }
-
   return (
     <>
       <Header />
@@ -112,6 +108,12 @@ const SearchResultMain = styled.main`
       border-radius: 10px;
       cursor: pointer;
       border: 1px solid #c4c4c4;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    & > img:hover {
+      transform: scale(1.03);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
     & > div {
