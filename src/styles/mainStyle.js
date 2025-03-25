@@ -46,6 +46,12 @@ export const ProductImg = styled.img`
   height: ${({ variant }) => variants[variant]?.productImg.height};
   margin-bottom: ${({ variant }) => variants[variant]?.productImg.marginBottom};
   cursor: ${({ variant }) => variants[variant]?.productImg.cursor};
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  &:hover {
+    transform: scale(1.03);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
 `;
 
 export const StoreName = styled.p`
@@ -61,7 +67,11 @@ export const ProductName = styled.h3`
     variants[variant]?.productName.marginBottom};
 `;
 
-export const Price = styled.span`
+export const Price = styled.p`
   font-size: ${({ variant }) => variants[variant]?.price.fontSize};
   font-weight: ${({ variant }) => variants[variant]?.price.fontWeight};
+  & > span {
+    font-size: 16px;
+    font-weight: normal;
+  }
 `;
