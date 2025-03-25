@@ -6,14 +6,15 @@ export default function QuantityControl({
   handleDecrease,
   handleIncrease,
   quantity,
+  isAvailable,
 }) {
   return (
     <QuantityControlWrap>
-      <button onClick={handleDecrease}>
+      <button onClick={handleDecrease} disabled={!isAvailable}>
         <img src={minusIcon} alt="수량 줄이기" />
       </button>
       <div style={{ fontWeight: "bold" }}>{quantity}</div>
-      <button onClick={handleIncrease}>
+      <button onClick={handleIncrease} disabled={!isAvailable}>
         <img src={plusIcon} alt="수량 늘리기" />
       </button>
     </QuantityControlWrap>
