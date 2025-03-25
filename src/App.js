@@ -9,6 +9,8 @@ import Payment from "./pages/paymentPage/Payment.jsx";
 import SellerCenter from "./pages/sellerCenter/SellerCenter.jsx";
 import RegisterProduct from "./pages/registerProduct/RegisterProduct.jsx";
 import ErrorPage from "./pages/error/ErrorPage.jsx";
+import MyOrderPage from "./pages/myPage/MyOrderPage.jsx";
+import SearchResults from "./pages/search/SearchResults.jsx";
 
 function App() {
   return (
@@ -22,7 +24,14 @@ function App() {
         <Route path="/cart" element={<Cart />} />
         <Route path="/payment" element={<Payment />} />
         <Route path="/seller-center" element={<SellerCenter />} />
-        <Route path="/register" element={<RegisterProduct />} />
+        <Route
+          path="/register"
+          element={<RegisterProduct isEditMode={false} />}
+        />
+        <Route path="/register/:id" element={<RegisterProduct />} />
+
+        <Route path="/mypage" element={<MyOrderPage />} />
+        <Route path="/search" element={<SearchResults />} />
         <Route path="*" element={<ErrorPage />} />
       </Routes>
     </BrowserRouter>
