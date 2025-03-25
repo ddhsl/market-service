@@ -33,9 +33,10 @@ export default function ProductDetails() {
   };
 
   const handleIncrease = () => {
-    setPurchaseQuantity(purchaseQuantity + 1);
+    if (purchaseQuantity < product.stock) {
+      setPurchaseQuantity(purchaseQuantity + 1);
+    }
   };
-
   async function handleCart() {
     if (isLoggedIn && !isSeller) {
       try {
@@ -105,7 +106,7 @@ export default function ProductDetails() {
   }
 
   const isSellerUser = isLoggedIn && isSeller;
-  const isAvailable = product.stock > 0;
+  const isAvailable = product.stock > 0 || isSellerUser;
 
   const handleDirectPurchase = () => {
     if (isLoggedIn && !isSeller) {
@@ -150,7 +151,8 @@ export default function ProductDetails() {
               handleDecrease={handleDecrease}
               handleIncrease={handleIncrease}
               quantity={purchaseQuantity}
-              isAvailable={isAvailable}
+              isAvailable={isAvailable && !isSellerUser}
+              stock={product.stock}
             />
           </QuantitySection>
           <OrderSummary>

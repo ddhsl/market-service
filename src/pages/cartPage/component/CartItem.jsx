@@ -4,6 +4,7 @@ import QuantityControl from "../../productDetails/component/QuantityControl";
 import Button from "../../../components/Button";
 import circleCheck from "../../../assets/circle-check-box-.png";
 import circleCheckOn from "../../../assets/circle-check-box-Fill.png";
+import { useAuth } from "../../../context/AuthContext";
 
 export default function CartItem({
   item,
@@ -13,6 +14,7 @@ export default function CartItem({
   onCheck,
   handleEachOrderClick,
 }) {
+  const { isLoggedIn, isSeller } = useAuth();
   const { id, product, quantity } = item;
 
   const handleCartIncrease = () => {
@@ -30,6 +32,9 @@ export default function CartItem({
   const handleCheckClick = () => {
     onCheck(id);
   };
+
+  const isSellerUser = isLoggedIn && isSeller;
+  const isAvailable = product.stock > 0 || isSellerUser;
 
   return (
     <CartItemField key={id}>
@@ -65,6 +70,8 @@ export default function CartItem({
             quantity={quantity}
             handleDecrease={handleCartDecrease}
             handleIncrease={handleCartIncrease}
+            isAvailable={isAvailable && !isSellerUser}
+            stock={product.stock}
           />
         </CartItemContent>
         <CartItemContent flex={2.5}>
@@ -114,6 +121,7 @@ const CartItemContent = styled.div`
     height: 160px;
     border-radius: 10px;
     object-fit: cover;
+    border: 1px solid #c4c4c4;
   }
   & > div > p:nth-child(1) {
     color: var(--sub-color);

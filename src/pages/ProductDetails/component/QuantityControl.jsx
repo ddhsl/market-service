@@ -7,14 +7,19 @@ export default function QuantityControl({
   handleIncrease,
   quantity,
   isAvailable,
+  isSellerUser,
+  stock,
 }) {
   return (
     <QuantityControlWrap>
-      <button onClick={handleDecrease} disabled={!isAvailable}>
+      <button onClick={handleDecrease} disabled={!isAvailable || isSellerUser}>
         <img src={minusIcon} alt="수량 줄이기" />
       </button>
       <div style={{ fontWeight: "bold" }}>{quantity}</div>
-      <button onClick={handleIncrease} disabled={!isAvailable}>
+      <button
+        onClick={handleIncrease}
+        disabled={!isAvailable || isSellerUser || quantity >= stock}
+      >
         <img src={plusIcon} alt="수량 늘리기" />
       </button>
     </QuantityControlWrap>
