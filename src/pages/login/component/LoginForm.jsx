@@ -78,6 +78,9 @@ export default function LoginForm({ selectedTab }) {
         // 전역 상태 업데이트
         login(data.user.user_type.toLowerCase(), data.access, data.refresh);
 
+        localStorage.setItem("name", data.user.name);
+        localStorage.setItem("username", data.user.username);
+
         alert("로그인 성공!");
         window.location.href = "/";
       } else {
