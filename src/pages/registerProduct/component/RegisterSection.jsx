@@ -1,94 +1,254 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styled from "styled-components";
 import Button from "../../../components/Button";
-import iconImg from "../../../assets/icon-img.png";
+import ImageUpload from "./ImageUpload";
+import { useNavigate, useLocation } from "react-router-dom";
+import { getCookie } from "../../../utils/cookieUtils";
 
-export default function RegisterSection() {
-  return (
-    <RegisterSectionWrap>
-      <h3 className="sr-only">상품 등록하기</h3>
-      <div className="register-container">
-        <ImageUpload />
-        <div className="input-container">
-          <div>
-            <label htmlFor="productName">상품명</label>
-            <ProductNameInput type="text" name="productName" id="productName" />
-          </div>
-          <InputWithUnit label="판매가" unit="원" name="price" id="price" />
-          <div>
-            <label>배송방법</label>
-            <div style={{ display: "flex", gap: "10px" }}>
-              <Button style={{ width: "220px", height: "54px" }}>
-                택배, 소포, 등기
-              </Button>
-              <Button
-                style={{
-                  width: "220px",
-                  height: "54px",
-                  color: "var(--sub-color)",
-                  backgroundColor: "#fff",
-                  border: "1px solid #c4c4c4",
-                }}
-              >
-                직접배송(화물배달)
-              </Button>
-            </div>
-          </div>
-          <InputWithUnit
-            label="기본 배송비"
-            unit="원"
-            name="shippingFee"
-            id="shippingFee"
-          />
-          <InputWithUnit label="재고" unit="개" name="stock" id="stock" />
-        </div>
-      </div>
-      <div>
-        <p style={{ color: "var(--sub-color)", marginBottom: "10px" }}>
-          상품 상세 정보
-        </p>
-        <div
-          style={{
-            width: "100%",
-            height: "700px",
-            backgroundColor: "#f2f2f2",
-          }}
-        >
-          에디터 영역
-        </div>
-      </div>
-      <ButtonWrap>
-        <Button>취소</Button>
-        <Button>저장하기</Button>
-      </ButtonWrap>
-    </RegisterSectionWrap>
-  );
-}
+export default function RegisterSection({ isEditMode, productId }) {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const product = location.state?.product;
 
-function ImageUpload() {
+  const [formData, setFormData] = useState({
+    name: "",
+    info: "",
+    price: "",
+    shipping_method: "PARCEL",
+    shipping_fee: "",
+    stock: "",
+  });
   const [image, setImage] = useState(null);
 
-  const handleImageUpload = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      setImage(URL.createObjectURL(file));
+  useEffect(() => {
+    if (product) {
+      setFormData({
+        name: product.name,
+        info: product.info,
+        price: product.price.toLocaleString(),
+        shipping_method: product.shipping_method,
+        shipping_fee: product.shipping_fee,
+        stock: product.stock,
+      });
+      setImage(product.image);
     }
+  }, [product]);
+
+  useEffect(() => {
+    if (isEditMode && productId) {
+      const fetchProductData = async () => {
+        try {
+          const response = await fetch(
+            `https://estapi.openmarket.weniv.co.kr/products/${productId}/`
+          );
+          if (!response.ok) {
+            throw new Error("상품 정보를 불러오는 데 실패했습니다.");
+          }
+          const data = await response.json();
+          setFormData({
+            name: data.name,
+            info: data.info,
+            price: data.price.toLocaleString(),
+            shipping_method: data.shipping_method,
+            shipping_fee: data.shipping_fee,
+            stock: data.stock,
+          });
+          setImage(data.image);
+        } catch (error) {
+          console.error(error);
+          alert(error.message);
+        }
+      };
+      fetchProductData();
+    }
+  }, [isEditMode, productId]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
   };
 
+  const handleShippingMethodChange = (method) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      shipping_method: method,
+    }));
+  };
+
+  const handleImageChange = (file) => {
+    setImage(file);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!formData.name.trim()) {
+      alert("상품명을 입력해주세요.");
+      return;
+    }
+
+    if (!formData.price.trim()) {
+      alert("판매가를 입력해주세요.");
+      return;
+    }
+
+    const priceValue = formData.price.replace(/[^\d]/g, "");
+    const priceInt = parseInt(priceValue, 10);
+
+    if (isNaN(priceInt)) {
+      alert("판매가는 유효한 정수여야 합니다.");
+      return;
+    }
+
+    const data = new FormData();
+    data.append("name", formData.name);
+    data.append("info", formData.info);
+    data.append("price", priceInt);
+    data.append("shipping_method", formData.shipping_method);
+    data.append("shipping_fee", formData.shipping_fee);
+    data.append("stock", formData.stock);
+
+    if (image instanceof File) {
+      data.append("image", image);
+    } else if (image && typeof image === "string") {
+      data.append("image_url", image);
+    } else {
+      alert("상품 이미지를 선택해주세요.");
+      return;
+    }
+
+    try {
+      const accessToken = getCookie("accessToken");
+      const response = await fetch(
+        isEditMode
+          ? `https://estapi.openmarket.weniv.co.kr/products/${productId}/`
+          : "https://estapi.openmarket.weniv.co.kr/products/",
+        {
+          method: isEditMode ? "PUT" : "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: data,
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.text();
+        console.error("서버 응답 오류:", errorData);
+        alert(`상품 ${isEditMode ? "수정" : "등록"} 실패: ${errorData}`);
+        return;
+      }
+
+      const result = await response.json();
+      alert(`상품이 성공적으로 ${isEditMode ? "수정" : "등록"}되었습니다.`);
+      navigate(`/product-details/${result.id}`);
+    } catch (error) {
+      console.error("오류 발생:", error);
+      alert(`오류 발생: ${error.message}`);
+    }
+  };
   return (
-    <ImageUploadWrap>
-      <label htmlFor="fileInput">상품 이미지</label>
-      <div onClick={() => document.getElementById("fileInput").click()}>
-        {image ? <img src={image} alt="상품 미리보기" /> : null}
-      </div>
-      <input
-        type="file"
-        id="fileInput"
-        name="productImage"
-        accept="image/*"
-        onChange={handleImageUpload}
-      />
-    </ImageUploadWrap>
+    <RegisterSectionWrap>
+      <h3 className="sr-only">상품 {isEditMode ? "수정" : "등록"}하기</h3>
+      <form
+        // 추가: submit 이벤트 로깅
+        onSubmit={(e) => {
+          console.log("Form submit 이벤트 발생");
+          handleSubmit(e);
+        }}
+      >
+        <div className="register-container">
+          <ImageUpload onImageChange={handleImageChange} />
+
+          <div className="input-container">
+            <div>
+              <label htmlFor="name">상품명</label>
+              <ProductNameInput
+                type="text"
+                name="name"
+                id="name"
+                value={formData.name}
+                onChange={handleChange}
+              />
+            </div>
+            <InputWithUnit
+              label="판매가"
+              unit="원"
+              name="price"
+              id="price"
+              value={formData.price}
+              onChange={handleChange}
+            />
+            <div>
+              <label>배송방법</label>
+              <ButtonGroup>
+                <ShippingButton
+                  type="button"
+                  isSelected={formData.shipping_method === "PARCEL"}
+                  onClick={() => handleShippingMethodChange("PARCEL")}
+                >
+                  택배, 소포, 등기
+                </ShippingButton>
+                <ShippingButton
+                  type="button"
+                  isSelected={formData.shipping_method === "DELIVERY"}
+                  onClick={() => handleShippingMethodChange("DELIVERY")}
+                >
+                  직접배송(화물배달)
+                </ShippingButton>
+              </ButtonGroup>
+            </div>
+            <InputWithUnit
+              label="기본 배송비"
+              unit="원"
+              name="shipping_fee"
+              id="shipping_fee"
+              value={formData.shipping_fee}
+              onChange={handleChange}
+            />
+            <InputWithUnit
+              label="재고"
+              unit="개"
+              name="stock"
+              id="stock"
+              value={formData.stock}
+              onChange={handleChange}
+            />
+          </div>
+        </div>
+        <div>
+          <label
+            htmlFor="info"
+            style={{ color: "var(--sub-color)", marginBottom: "10px" }}
+          >
+            상품 정보
+          </label>
+          <textarea
+            name="info"
+            id="info"
+            value={formData.info}
+            onChange={handleChange}
+            style={{
+              width: "100%",
+              height: "400px",
+              maxHeight: "700px",
+              border: "1px solid #c4c4c4",
+              borderRadius: "10px",
+              padding: "20px",
+            }}
+          />
+        </div>
+        <ButtonWrap>
+          <Button type="button" onClick={() => alert("취소 버튼 클릭됨")}>
+            취소
+          </Button>
+          <Button type="submit">{isEditMode ? "수정하기" : "등록하기"}</Button>
+        </ButtonWrap>
+      </form>
+    </RegisterSectionWrap>
   );
 }
 
@@ -115,31 +275,6 @@ const RegisterSectionWrap = styled.section`
   }
 `;
 
-const ImageUploadWrap = styled.div`
-  & > div {
-    width: 454px;
-    height: 454px;
-    background-color: #c4c4c4;
-    background-image: url(${iconImg});
-    background-repeat: no-repeat;
-    background-position: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-  }
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  input {
-    display: none;
-  }
-`;
-
 const ProductNameInput = styled.input`
   width: 100%;
   height: 54px;
@@ -148,12 +283,18 @@ const ProductNameInput = styled.input`
   padding: 16px;
 `;
 
-function InputWithUnit({ label, unit, name, id }) {
+function InputWithUnit({ label, unit, name, id, value, onChange }) {
   return (
     <div>
       <label htmlFor={id}>{label}</label>
       <InputWrapper>
-        <StyledRegisterInput type="text" name={name} id={id} />
+        <StyledRegisterInput
+          type="text"
+          name={name}
+          id={id}
+          value={value}
+          onChange={onChange}
+        />
         <UnitBox>{unit}</UnitBox>
       </InputWrapper>
     </div>
@@ -204,6 +345,30 @@ const ButtonWrap = styled.div`
   & > button:nth-child(1) {
     color: var(--sub-color);
     background-color: #fff;
-    border: 1px solid var(--sub-color);
+    border: 1px solid #c4c4c4;
+  }
+`;
+const ButtonGroup = styled.div`
+  display: flex;
+  gap: 10px;
+`;
+
+const ShippingButton = styled.button`
+  width: 220px;
+  height: 54px;
+  font-weight: bold;
+  text-align: center;
+  background-color: ${({ isSelected }) =>
+    isSelected ? "var(--main-color)" : "#fff"};
+  color: ${({ isSelected }) => (isSelected ? "#fff" : "var(--sub-color)")};
+  border: 1px solid
+    ${({ isSelected }) => (isSelected ? "var(--main-color)" : "#c4c4c4")};
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: ${({ isSelected }) =>
+      isSelected ? "var(--main-color)" : "#f0f0f0"};
   }
 `;
