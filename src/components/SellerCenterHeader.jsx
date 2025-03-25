@@ -9,7 +9,9 @@ export default function SellerCenterHeader() {
           <img src={hoduIcon} alt="Hodu" />
         </Link>
 
-        <p>판매자 센터</p>
+        <Link to="/seller-center">
+          <p>판매자 센터</p>
+        </Link>
       </h1>
     </SellerCenterTitle>
   );
@@ -34,7 +36,7 @@ const SellerCenterTitle = styled.header`
     width: 80px;
     height: 24px;
   }
-  & > h1 > p {
+  & > h1 > a > p {
     font-size: 28px;
     font-weight: 500;
   }
