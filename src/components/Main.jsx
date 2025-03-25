@@ -49,8 +49,9 @@ export default function MainContent() {
           <ProductImg variant="main" src={product.image} alt={product.info} />
           <StoreName variant="main">{product.seller.store_name}</StoreName>
           <ProductName variant="main">{product.name}</ProductName>
-          <Price variant="main">{product.price.toLocaleString()}</Price>
-          <span>원</span>
+          <Price variant="main">
+            {product.price.toLocaleString()} <span>원</span>
+          </Price>
         </ProductCard>
       ))}
     </Main>
