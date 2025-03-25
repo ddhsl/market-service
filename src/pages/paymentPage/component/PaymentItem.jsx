@@ -82,5 +82,6 @@ const PaymentItemContent = styled.li`
     width: 104px;
     height: 104px;
     border-radius: 10px;
+    border: 1px solid #c4c4c4;
   }
 `;
