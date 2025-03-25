@@ -4,8 +4,15 @@ import Button from "../../components/Button";
 import iconPlus from "../../assets/icon-plus.svg";
 import DashboardAside from "./component/DashboardAside";
 import DashboardSection from "./component/DashboardSection";
+import { useNavigate } from "react-router-dom";
 
 export default function SellerCenter() {
+  const navigate = useNavigate();
+
+  const navigateToRegister = () => {
+    navigate("/register");
+  };
+
   return (
     <>
       <SellerCenterHeader />
@@ -14,7 +21,7 @@ export default function SellerCenter() {
           <h2>
             대시보드 <span>백엔드글로벌</span>
           </h2>
-          <Button>상품 업로드</Button>
+          <Button onClick={navigateToRegister}>상품 업로드</Button>
         </div>
         <div style={{ display: "flex", gap: "30px" }}>
           <DashboardAside />
