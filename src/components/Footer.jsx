@@ -20,14 +20,26 @@ export default function Footer() {
           <PolicyList>
             {policyLinks.map((link, index) => (
               <li key={index}>
-                <a
-                  href="#"
+                <button
+                  type="button"
                   style={{
-                    fontWeight: link === "개인정보처리방침" ? "700" : "normal",
+                    background: "none",
+                    border: "none",
+                    padding: 0,
+                    color: "inherit",
+                    cursor: "pointer",
                   }}
+                  onClick={(e) => e.preventDefault()} // 클릭 시 기본 동작 방지
                 >
-                  {link}
-                </a>
+                  <span
+                    style={{
+                      fontWeight:
+                        link === "개인정보처리방침" ? "bold" : "normal",
+                    }}
+                  >
+                    {link}
+                  </span>
+                </button>
               </li>
             ))}
           </PolicyList>
@@ -37,7 +49,18 @@ export default function Footer() {
           <SnsList>
             {snsLinks.map((link, index) => (
               <li key={index}>
-                <a href="#">
+                <a
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    background: "none",
+                    border: "none",
+                    padding: 0,
+                    color: "inherit",
+                    cursor: "pointer",
+                  }}
+                >
                   <img src={link.icon} alt={link.alt} />
                 </a>
               </li>
@@ -85,9 +108,21 @@ const policyLinks = [
 ];
 
 const snsLinks = [
-  { icon: instaIcon, alt: "인스타그램 바로가기" },
-  { icon: facebookIcon, alt: "페이스북 바로가기" },
-  { icon: youtubeIcon, alt: "유투브 바로가기" },
+  {
+    icon: instaIcon,
+    alt: "인스타그램 바로가기",
+    url: "https://www.instagram.com",
+  },
+  {
+    icon: facebookIcon,
+    alt: "페이스북 바로가기",
+    url: "https://www.facebook.com",
+  },
+  {
+    icon: youtubeIcon,
+    alt: "유튜브 바로가기",
+    url: "https://www.youtube.com",
+  },
 ];
 
 const addressDetails = [
