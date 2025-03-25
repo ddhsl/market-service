@@ -3,22 +3,45 @@ import ShippingInput from "./ShippingInput";
 import PhoneInput from "./PhoneInput";
 import { ShippingInputWrap } from "./ShippingInfo";
 
-export default function OrdererForm() {
+export default function OrdererForm({
+  ordererName,
+  setOrdererName,
+  ordererPhone,
+  setOrdererPhone,
+  ordererEmail,
+  setOrdererEmail,
+  onSubmit,
+}) {
   return (
     <section>
       <OrdererSubTitle>주문자 정보</OrdererSubTitle>
-      <form action="">
+      <form onSubmit={onSubmit}>
         <ShippingInputWrap>
           <label htmlFor="orderer-name">이름</label>
-          <ShippingInput id="orderer-name" name="ordererName" />
+          <ShippingInput
+            id="orderer-name"
+            name="ordererName"
+            value={ordererName}
+            onChange={(e) => setOrdererName(e.target.value)}
+          />
         </ShippingInputWrap>
         <ShippingInputWrap>
           <label htmlFor="orderer-phone">휴대폰</label>
-          <PhoneInput idPrefix="orderer-phone" namePrefix="ordererPhone" />
+          <PhoneInput
+            idPrefix="orderer-phone"
+            namePrefix="ordererPhone"
+            value={ordererPhone}
+            onChange={setOrdererPhone}
+          />
         </ShippingInputWrap>
         <ShippingInputWrap>
           <label htmlFor="orderer-email">이메일</label>
-          <ShippingInput id="orderer-email" name="ordererEmail" />
+          <ShippingInput
+            id="orderer-email"
+            name="ordererEmail"
+            value={ordererEmail}
+            onChange={(e) => setOrdererEmail(e.target.value)}
+          />
         </ShippingInputWrap>
       </form>
     </section>
