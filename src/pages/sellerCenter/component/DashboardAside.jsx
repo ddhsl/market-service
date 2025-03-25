@@ -3,7 +3,9 @@ export default function DashboardAside() {
   return (
     <aside>
       <AsideWrap>
-        <li>판매중인 상품(3)</li>
+        <li style={{ backgroundColor: "var(--main-color)", color: "White" }}>
+          판매중인 상품(3)
+        </li>
         <li>주문/배송</li>
         <li>문의/리뷰</li>
         <li>통계</li>
