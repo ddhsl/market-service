@@ -4,6 +4,8 @@ import { useLocation } from "react-router-dom";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../../constants/api";
+import Loader from "../../components/Loader";
 
 export default function SearchResults() {
   const [products, setProducts] = useState([]);
@@ -20,9 +22,7 @@ export default function SearchResults() {
       setLoading(true);
       try {
         const response = await fetch(
-          `https://estapi.openmarket.weniv.co.kr/products/?search=${encodeURIComponent(
-            searchTerm
-          )}`
+          `${API_BASE_URL}/products/?search=${encodeURIComponent(searchTerm)}`
         );
         const data = await response.json();
         setProducts(data.results);
@@ -39,7 +39,7 @@ export default function SearchResults() {
   }, [searchTerm]);
 
   if (loading) {
-    return <div>로딩 중...</div>;
+    return <Loader />;
   }
 
   return (

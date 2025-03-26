@@ -2,26 +2,24 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { getCookie } from "../../utils/cookieUtils";
 import Header from "../../components/Header";
-
+import { API_BASE_URL } from "../../constants/api";
+import Loader from "../../components/Loader";
 export default function MyOrderPage() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const userName = localStorage.getItem("name");
 
   useEffect(() => {
     const fetchOrders = async () => {
       try {
         const accessToken = getCookie("accessToken");
-        const response = await fetch(
-          "https://estapi.openmarket.weniv.co.kr/order/",
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
+        const response = await fetch(`${API_BASE_URL}/order/`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
         if (!response.ok) {
           throw new Error("주문 정보를 가져오는 데 실패했습니다.");
         }
@@ -38,7 +36,7 @@ export default function MyOrderPage() {
   }, []);
 
   if (loading) {
-    return <LoadingText>주문 정보를 불러오는 중...</LoadingText>;
+    return <Loader />;
   }
 
   if (error) {
@@ -49,9 +47,13 @@ export default function MyOrderPage() {
     <>
       <Header />
       <MyPageWrapper>
-        <Title>
-          나의 주문 목록 <span>({orders.length})</span>
-        </Title>
+        <TitleWrapper>
+          <Title>안녕하세요, {userName}님!</Title>
+          <SubtitleWrapper>
+            <Subtitle>나의 주문 목록</Subtitle>
+            <OrderCount>({orders.length})</OrderCount>
+          </SubtitleWrapper>
+        </TitleWrapper>
         {orders.length === 0 ? (
           <Message>주문 내역이 없습니다.</Message>
         ) : (
@@ -110,21 +112,32 @@ const MyPageWrapper = styled.main`
   align-items: flex-start;
 `;
 
+const TitleWrapper = styled.div`
+  margin-bottom: 30px;
+`;
+
 const Title = styled.h1`
   font-size: 26px;
   font-weight: bold;
-  margin-bottom: 30px;
   color: #333;
-  & > span {
-    font-size: 22px;
-    color: var(--main-color);
-  }
 `;
 
-const LoadingText = styled.p`
-  text-align: left;
+const SubtitleWrapper = styled.div`
+  margin-top: 40px;
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+`;
+
+const Subtitle = styled.span`
+  font-size: 22px;
+  font-weight: normal;
+`;
+
+const OrderCount = styled.span`
   font-size: 18px;
-  color: #888;
+  color: var(--main-color);
+  font-weight: bold;
 `;
 
 const ErrorText = styled.p`

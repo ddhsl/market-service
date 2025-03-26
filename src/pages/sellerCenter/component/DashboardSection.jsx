@@ -1,7 +1,9 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import ActiveItem from "./ActiveItem";
 import { getCookie } from "../../../utils/cookieUtils";
+import { API_BASE_URL } from "../../../constants/api";
+import Loader from "../../../components/Loader";
 
 const dashboardLabels = [
   { text: "상품정보", flex: 5 },
@@ -11,30 +13,26 @@ const dashboardLabels = [
 ];
 
 export default function DashboardSection() {
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // useCallback으로 fetchProducts 함수 최적화
-  const fetchProducts = useCallback(async () => {
+  const fetchProducts = async () => {
     const sellerName = localStorage.getItem("name");
     if (!sellerName) {
-      setError("판매자 이름이 로컬 스토리지에 없습니다.");
+      setError("판매자 이름이 없습니다.");
       setLoading(false);
       return;
     }
 
     try {
       const accessToken = getCookie("accessToken");
-      const response = await fetch(
-        `https://estapi.openmarket.weniv.co.kr/${sellerName}/products/`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/${sellerName}/products/`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
 
       if (!response.ok) {
         setError(
@@ -56,12 +54,13 @@ export default function DashboardSection() {
     } finally {
       setLoading(false);
     }
-  }, []); // 의존성 배열 비움
+  };
 
-  // 컴포넌트 마운트 시 상품 불러오기
   useEffect(() => {
     fetchProducts();
-  }, [fetchProducts]);
+  }, []);
+
+  if (loading) return <Loader />;
 
   // 상품 삭제 핸들러
   const handleProductDelete = (deletedProductId) => {
@@ -80,21 +79,21 @@ export default function DashboardSection() {
           </DashboardLabel>
         ))}
       </DashboardField>
-      {loading && <p>상품을 불러오는 중입니다...</p>}
       {error && <p>{error}</p>}
-      {!loading && !error && products.length > 0 && (
+      {!loading && !error && (
         <div>
-          {products.map((product) => (
-            <ActiveItem
-              key={product.id}
-              product={product}
-              onDelete={handleProductDelete}
-            />
-          ))}
+          {products && products.length > 0 ? (
+            products.map((product) => (
+              <ActiveItem
+                key={product.id}
+                product={product}
+                onDelete={handleProductDelete}
+              />
+            ))
+          ) : (
+            <p>등록된 상품이 없습니다.</p>
+          )}
         </div>
-      )}
-      {!loading && !error && products.length === 0 && (
-        <p>등록된 상품이 없습니다.</p>
       )}
     </DashboardWrap>
   );

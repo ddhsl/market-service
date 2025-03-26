@@ -4,6 +4,7 @@ import Button from "../../../components/Button";
 import { useNavigate } from "react-router-dom";
 import { getCookie } from "../../../utils/cookieUtils";
 import ConfirmModal from "./ConfirmModal";
+import { API_BASE_URL } from "../../../constants/api";
 
 export default function ActiveItem({ product, onDelete }) {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
@@ -21,22 +22,17 @@ export default function ActiveItem({ product, onDelete }) {
     setIsConfirmModalOpen(false);
     try {
       const accessToken = getCookie("accessToken");
-      const response = await fetch(
-        `https://estapi.openmarket.weniv.co.kr/products/${product.id}/`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/products/${product.id}/`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
 
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.detail || "상품 삭제에 실패했습니다.");
       }
-
-      alert("상품이 성공적으로 삭제되었습니다.");
 
       if (onDelete) {
         onDelete(product.id);
@@ -67,7 +63,6 @@ export default function ActiveItem({ product, onDelete }) {
             <img
               src={product.image}
               alt="상품 이미지"
-              key={product.id}
               onClick={() => navigate(`/product-details/${product.id}`)}
             />
             <div
@@ -75,7 +70,6 @@ export default function ActiveItem({ product, onDelete }) {
             >
               <p
                 style={{ cursor: "pointer" }}
-                key={product.id}
                 onClick={() => navigate(`/product-details/${product.id}`)}
               >
                 {product.name}
@@ -97,11 +91,10 @@ export default function ActiveItem({ product, onDelete }) {
             <Button
               type="button"
               onClick={handleDeleteClick}
-              style={{
-                backgroundColor: "#fff",
-                color: "var(--sub-color)",
-                border: "1px solid #c4c4c4",
-              }}
+              backgroundColor="#fff"
+              color="var(--sub-color)"
+              border="1px solid #c4c4c4"
+              buttonType="cancel"
             >
               삭제
             </Button>

@@ -4,7 +4,7 @@ import Button from "../../../components/Button";
 import ImageUpload from "./ImageUpload";
 import { useNavigate, useLocation } from "react-router-dom";
 import { getCookie } from "../../../utils/cookieUtils";
-
+import { API_BASE_URL } from "../../../constants/api";
 export default function RegisterSection({ isEditMode, productId }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -39,7 +39,7 @@ export default function RegisterSection({ isEditMode, productId }) {
       const fetchProductData = async () => {
         try {
           const response = await fetch(
-            `https://estapi.openmarket.weniv.co.kr/products/${productId}/`
+            `${API_BASE_URL}/products/${productId}/`
           );
           if (!response.ok) {
             throw new Error("상품 정보를 불러오는 데 실패했습니다.");
@@ -124,8 +124,8 @@ export default function RegisterSection({ isEditMode, productId }) {
       const accessToken = getCookie("accessToken");
       const response = await fetch(
         isEditMode
-          ? `https://estapi.openmarket.weniv.co.kr/products/${productId}/`
-          : "https://estapi.openmarket.weniv.co.kr/products/",
+          ? `${API_BASE_URL}/products/${productId}/`
+          : `${API_BASE_URL}/products/`,
         {
           method: isEditMode ? "PUT" : "POST",
           headers: {
@@ -150,11 +150,11 @@ export default function RegisterSection({ isEditMode, productId }) {
       alert(`오류 발생: ${error.message}`);
     }
   };
+
   return (
     <RegisterSectionWrap>
       <h3 className="sr-only">상품 {isEditMode ? "수정" : "등록"}하기</h3>
       <form
-        // 추가: submit 이벤트 로깅
         onSubmit={(e) => {
           console.log("Form submit 이벤트 발생");
           handleSubmit(e);

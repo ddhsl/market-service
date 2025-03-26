@@ -8,6 +8,8 @@ import {
 } from "../styles/mainStyle";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../constants/api";
+import Loader from "./Loader";
 
 export default function MainContent() {
   const [products, setProducts] = useState([]);
@@ -17,9 +19,7 @@ export default function MainContent() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch(
-          "https://estapi.openmarket.weniv.co.kr/products/"
-        );
+        const response = await fetch(`${API_BASE_URL}/products/`);
         const data = await response.json();
         setProducts(data.results);
       } catch (error) {
@@ -32,7 +32,7 @@ export default function MainContent() {
   }, []);
 
   if (loading) {
-    return <div>로딩 중...</div>;
+    return <Loader />;
   }
 
   if (products.length === 0) {

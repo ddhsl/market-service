@@ -1,12 +1,13 @@
 import styled from "styled-components";
 import { useEffect, useState } from "react";
 import Input from "../../../components/Input";
-import InputForm from "../../../components/InputField";
+import InputForm from "../../../components/InputForm";
 import Button from "../../../components/Button";
 import AlertMsg from "../../../components/AlertMsg";
-import { useAuth } from "../../../context/AuthContext"; // AuthContext에서 useAuth 훅을 가져옴
+import { useAuth } from "../../../context/AuthContext";
+import { API_BASE_URL } from "../../../constants/api";
 export default function LoginForm({ selectedTab }) {
-  const { login } = useAuth(); // useAuth 훅을 사용하여 login 함수를 가져옴
+  const { login } = useAuth();
   const [loginError, setLoginError] = useState("");
   const [loginFormData, setLoginFormData] = useState({
     username: "",
@@ -14,18 +15,8 @@ export default function LoginForm({ selectedTab }) {
   });
 
   useEffect(() => {
-    if (selectedTab === "buyer") {
-      setLoginFormData({
-        username: "",
-        password: "",
-      });
-    } else if (selectedTab === "seller") {
-      setLoginFormData({
-        username: "",
-        password: "",
-      });
-    }
-
+    const defaultFormData = { username: "", password: "" };
+    setLoginFormData(defaultFormData);
     setLoginError("");
   }, [selectedTab]);
 
@@ -46,19 +37,16 @@ export default function LoginForm({ selectedTab }) {
       setLoginError("비밀번호를 입력해 주세요.");
       return;
     }
-    setLoginError(""); // 에러 초기화
+    setLoginError("");
 
     try {
-      const response = await fetch(
-        "https://estapi.openmarket.weniv.co.kr/accounts/login/",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(loginFormData),
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/accounts/login/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(loginFormData),
+      });
 
       const data = await response.json();
 
@@ -81,7 +69,7 @@ export default function LoginForm({ selectedTab }) {
         localStorage.setItem("name", data.user.name);
         localStorage.setItem("username", data.user.username);
 
-        alert("로그인 성공!");
+        alert("로그인에 성공했습니다!");
         window.location.href = "/";
       } else {
         setLoginError(data.error || "로그인에 실패했습니다.");

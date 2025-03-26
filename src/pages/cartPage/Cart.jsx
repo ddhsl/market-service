@@ -8,6 +8,8 @@ import PaymentOverview from "./component/PaymentOverview";
 import { getCookie } from "../../utils/cookieUtils";
 import EmptyCartMessage from "./component/EmptyCartMessage";
 import DeleteModal from "./component/DeleteModal";
+import { API_BASE_URL } from "../../constants/api";
+import Loader from "../../components/Loader";
 
 const cartLabels = [
   { text: "상품정보", flex: 5 },
@@ -26,19 +28,15 @@ export default function Cart() {
 
   useEffect(() => {
     const fetchCartItems = async () => {
-      setIsLoading(true);
+      setError(null); //기존 오류 초기화
       try {
         const accessToken = getCookie("accessToken");
-        const response = await fetch(
-          "https://estapi.openmarket.weniv.co.kr/cart/",
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
+        const response = await fetch(`${API_BASE_URL}/cart/`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
 
         if (!response.ok) {
           throw new Error(`API 요청 실패: ${response.status}`);
@@ -72,11 +70,11 @@ export default function Cart() {
 
   // 결제 페이지로 이동하는 함수
   const navigateToPaymentPage = (items) => {
-    if (items.length > 0) {
-      navigate("/payment", { state: { selectedItems: items } });
-    } else {
+    if (items.length === 0) {
       alert("주문할 아이템을 선택해주세요.");
+      return;
     }
+    navigate("/payment", { state: { selectedItems: items } });
   };
 
   // 주문하기 버튼 클릭 시 선택된 아이템으로 결제 페이지로 이동
@@ -96,35 +94,35 @@ export default function Cart() {
   const handleQuantityChange = async (itemId, newQuantity) => {
     try {
       const accessToken = getCookie("accessToken");
-      const response = await fetch(
-        `https://estapi.openmarket.weniv.co.kr/cart/${itemId}/`,
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ quantity: newQuantity }),
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/cart/${itemId}/`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ quantity: newQuantity }),
+      });
 
       if (!response.ok) {
         throw new Error(`수량 업데이트 실패: ${response.status}`);
       }
 
+      const updatedItem = await response.json(); // 서버에서 변경된 데이터 받아오기
+
       setCartItems((prevItems) =>
         prevItems.map((item) =>
-          item.id === itemId ? { ...item, quantity: newQuantity } : item
+          item.id === itemId
+            ? { ...item, quantity: updatedItem.quantity }
+            : item
         )
       );
     } catch (error) {
       console.error("수량 업데이트 중 오류 발생:", error);
+      setError(error.message);
     }
   };
 
-  if (isLoading) {
-    return <LoadingMessage>로딩 중...</LoadingMessage>;
-  }
+  if (isLoading) return <Loader />;
 
   if (error) {
     return <ErrorMessage>오류 발생: {error}</ErrorMessage>;
@@ -132,19 +130,17 @@ export default function Cart() {
 
   const hasCartItems = cartItems.length > 0;
 
+  // 장바구니 아이템 삭제하기
   const handleDelete = async (itemId) => {
     try {
+      setError(null); //기존 오류 초기화
       const accessToken = getCookie("accessToken");
-      const response = await fetch(
-        `https://estapi.openmarket.weniv.co.kr/cart/${itemId}/`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/cart/${itemId}/`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
 
       if (!response.ok) {
         throw new Error(`삭제 실패: ${response.status}`);
@@ -155,6 +151,7 @@ export default function Cart() {
       );
     } catch (error) {
       console.error("서버 오류가 발생했습니다:", error);
+      setError(error.message);
     }
   };
 
@@ -220,7 +217,10 @@ export default function Cart() {
       {isOpenDeleteModal && (
         <DeleteModal
           handleDelete={handleDelete}
-          onClose={() => setIsOpenDeleteModal(false)}
+          onClose={() => {
+            setIsOpenDeleteModal(false);
+            setItemToDelete(null); // 모달 닫을 때 초기화
+          }}
           item={itemToDelete}
         />
       )}
@@ -268,15 +268,7 @@ export const CartLabel = styled.p`
   text-align: center;
 `;
 
-const LoadingMessage = styled.div`
-  width: 100%;
-  padding: 40px 0;
-  text-align: center;
-  font-size: 16px;
-  color: #767676;
-`;
-
-const ErrorMessage = styled.div`
+const ErrorMessage = styled.div.attrs({ role: "alert" })`
   width: 100%;
   padding: 40px 0;
   text-align: center;

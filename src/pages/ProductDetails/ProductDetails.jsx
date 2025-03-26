@@ -15,6 +15,8 @@ import { useAuth } from "../../context/AuthContext";
 import LoginModal from "../../components/LoginModal";
 import CartModal from "./component/CartModal";
 import { getCookie } from "../../utils/cookieUtils";
+import { API_BASE_URL } from "../../constants/api";
+import Loader from "../../components/Loader";
 
 export default function ProductDetails() {
   const { id } = useParams();
@@ -28,52 +30,49 @@ export default function ProductDetails() {
 
   const handleDecrease = () => {
     if (purchaseQuantity > 1) {
-      setPurchaseQuantity(purchaseQuantity - 1);
+      setPurchaseQuantity((prev) => prev - 1);
     }
   };
 
   const handleIncrease = () => {
     if (purchaseQuantity < product.stock) {
-      setPurchaseQuantity(purchaseQuantity + 1);
+      setPurchaseQuantity((prev) => prev + 1);
     }
   };
+
   async function handleCart() {
     if (isLoggedIn && !isSeller) {
       try {
-        // 쿠키에서 accessToken 가져오기
         const accessToken = getCookie("accessToken");
 
-        // accessToken이 없으면 로그인 모달을 열고 종료
         if (!accessToken) {
           setIsLoginModalOpen(true);
           return;
         }
 
-        const response = await fetch(
-          "https://estapi.openmarket.weniv.co.kr/cart/",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${accessToken}`, // 인증 헤더 추가
-            },
-            body: JSON.stringify({
-              product_id: product.id,
-              quantity: purchaseQuantity,
-            }),
-          }
-        );
+        const response = await fetch(`${API_BASE_URL}/cart/`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify({
+            product_id: product.id,
+            quantity: purchaseQuantity,
+          }),
+        });
 
-        const data = await response.json();
-
-        if (response.ok) {
-          console.log(data.detail);
-          setIsCartModalOpen(true); // 카트 모달이 성공적인 응답에서만 열림
-        } else {
-          console.log("장바구니에 상품 담기가 실패했습니다.");
+        if (!response.ok) {
+          throw new Error(`API 요청 실패: ${response.status}`);
         }
+        const data = await response.json();
+        console.log(data.detail);
+        setIsCartModalOpen(true);
       } catch (error) {
         console.error(error, "서버 오류가 발생했습니다.");
+        alert(
+          "장바구니에 상품을 담는 데 문제가 발생했습니다. 다시 시도해주세요."
+        );
       }
     } else {
       setIsLoginModalOpen(true);
@@ -83,13 +82,11 @@ export default function ProductDetails() {
   useEffect(() => {
     const fetchProductDetails = async () => {
       try {
-        const response = await fetch(
-          `https://estapi.openmarket.weniv.co.kr/products/${id}/`
-        );
+        const response = await fetch(`${API_BASE_URL}/products/${id}/`);
         const data = await response.json();
         setProduct(data);
       } catch (error) {
-        console.error("상품 상세 정보를 불러오는 데 실패했습니다.", error);
+        alert("상품 상세 정보를 불러오는 데 실패했습니다.");
       } finally {
         setLoading(false);
       }
@@ -98,7 +95,7 @@ export default function ProductDetails() {
   }, [id]);
 
   if (loading) {
-    return <div>로딩 중...</div>;
+    return <Loader />;
   }
 
   if (!product) {
@@ -107,6 +104,7 @@ export default function ProductDetails() {
 
   const isSellerUser = isLoggedIn && isSeller;
   const isAvailable = product.stock > 0 || isSellerUser;
+  const isButtonDisabled = isSellerUser || !isAvailable;
 
   const handleDirectPurchase = () => {
     if (isLoggedIn && !isSeller) {
@@ -180,30 +178,28 @@ export default function ProductDetails() {
           </OrderSummary>
 
           <Button
-            style={{
-              width: "416px",
-              height: "60px",
-              backgroundColor:
-                isSellerUser || !isAvailable ? "#c4c4c4" : "var(--main-color)",
-              cursor: isSellerUser || !isAvailable ? "not-allowed" : "pointer",
-            }}
+            width="416px"
+            height="60px"
+            backgroundColor={isButtonDisabled ? "#c4c4c4" : ""}
+            cursor={isButtonDisabled ? "not-allowed" : "pointer"}
             onClick={handleDirectPurchase}
-            disabled={isSellerUser || !isAvailable}
+            disabled={isButtonDisabled}
           >
             바로 구매
           </Button>
+
           <Button
             width="200px"
             height="60px"
-            backgroundColor={
-              isSellerUser || !isAvailable ? "#c4c4c4" : "var(--sub-color)"
-            }
+            backgroundColor={isButtonDisabled ? "#c4c4c4" : "#8b8b8b"}
+            buttonType="cart"
             marginLeft="14px"
             onClick={handleCart}
-            disabled={isSellerUser || !isAvailable}
+            disabled={isButtonDisabled}
           >
             장바구니
           </Button>
+
           {!isAvailable && (
             <p style={{ color: "red", marginTop: "13px" }}>
               *현재 재고가 없습니다.
