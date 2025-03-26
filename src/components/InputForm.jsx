@@ -11,7 +11,6 @@ const StyledInputField = styled.form`
   border-radius: 10px;
   position: relative;
   top: -10px;
-  z-index: 80;
   background-color: #fff;
   padding: 30px 35px 36px;
 `;
