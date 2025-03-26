@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { useState, useEffect } from "react";
-import InputField from "../../../components/InputField";
+import InputForm from "../../../components/InputForm";
 import Input from "../../../components/Input";
 import Button from "../../../components/Button";
 import pwCheckImg from "../../../assets/icon-check-off.svg";
@@ -9,6 +9,7 @@ import PhoneNumber from "./PhoneNumber";
 import AlertMsg from "../../../components/AlertMsg";
 import checkImg from "../../../assets/check-box.svg";
 import checkFill from "../../../assets/check-fill-box.svg";
+import { API_BASE_URL } from "../../../constants/api";
 
 export default function JoinForm({ formType, selectedTab }) {
   const isJoin = formType === "join";
@@ -30,41 +31,27 @@ export default function JoinForm({ formType, selectedTab }) {
 
   const [errors, setErrors] = useState({});
 
+  // 탭 변경 시 입력 데이터 초기화
+  const getInitialFormData = (tab) => {
+    const baseData = {
+      username: "",
+      password: "",
+      confirmPassword: "",
+      name: "",
+      phone_number: "",
+    };
+    return tab === "seller"
+      ? { ...baseData, company_registration_number: "", store_name: "" }
+      : baseData;
+  };
+
   useEffect(() => {
-    // 탭이 변경될 때마다 초기화
-    if (selectedTab === "buyer") {
-      setJoinFormData({
-        username: "",
-        password: "",
-        confirmPassword: "",
-        name: "",
-        phone_number: "",
-      });
-    } else if (selectedTab === "seller") {
-      setJoinFormData({
-        username: "",
-        password: "",
-        confirmPassword: "",
-        name: "",
-        phone_number: "",
-        company_registration_number: "",
-        store_name: "",
-      });
-    }
-
-    // 에러 메시지 초기화
+    setJoinFormData(getInitialFormData(selectedTab));
     setErrors({});
-
     setIsPasswordValid(false);
     setIsConfirmPasswordValid(false);
-
-    // 동의하기 초기화
     setIsAgree(false);
-
-    // 아이디 중복확인 초기화
     setIsUsernameAvailable(false);
-
-    // 사업자등록번호 중복확인 초기화
     setIsCompanyNoAvailable(false);
   }, [selectedTab]);
 
@@ -73,102 +60,50 @@ export default function JoinForm({ formType, selectedTab }) {
     setIsAgree((prev) => !prev);
   };
 
-  // 아이디 중복 체크 함수
-  const handleCheckUsername = async () => {
-    if (!joinFormData.username) {
+  // 아이디, 사업자등록번호 중복 확인하기
+  const checkAvailability = async (field, url, value) => {
+    if (!value) {
       setErrors((prev) => ({
         ...prev,
-        username: "아이디를 입력하세요.",
+        [field]: `${
+          field === "username" ? "아이디" : "사업자등록번호"
+        }를 입력하세요.`,
       }));
-      setIsUsernameAvailable(false);
-      return;
+      return false;
     }
-
     try {
-      const response = await fetch(
-        "https://estapi.openmarket.weniv.co.kr/accounts/validate-username/",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ username: joinFormData.username }),
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}${url}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ [field]: value }),
+      });
 
       const data = await response.json();
-
       if (data.error) {
-        setErrors((prev) => ({
-          ...prev,
-          username: data.error,
-        }));
-        setIsUsernameAvailable(false);
-      } else if (data.message) {
-        setErrors((prev) => ({
-          ...prev,
-          username: null, // 오류가 없으면 null로 설정
-        }));
-        setIsUsernameAvailable(true);
+        setErrors((prev) => ({ ...prev, [field]: data.error }));
+        return false;
       }
+      setErrors((prev) => ({ ...prev, [field]: null }));
+      return true;
     } catch (error) {
-      console.error("아이디 중복 확인 요청 중 오류 발생:", error);
-      setIsUsernameAvailable(false);
+      console.error(`${field} 중복 확인 오류:`, error);
+      return false;
     }
   };
 
-  // 사업자등록번호 인증 함수
-  const handleCheckComponyNo = async () => {
-    if (!joinFormData.company_registration_number) {
-      setErrors((prev) => ({
-        ...prev,
-        company_registration_number: "사업자등록번호를 입력하세요.",
-      }));
-      setIsCompanyNoAvailable(false);
-      return;
-    }
+  const handleCheckUsername = () =>
+    checkAvailability(
+      "username",
+      "/accounts/validate-username/",
+      joinFormData.username
+    ).then(setIsUsernameAvailable);
 
-    try {
-      const response = await fetch(
-        "https://estapi.openmarket.weniv.co.kr/accounts/seller/validate-registration-number/",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            company_registration_number:
-              joinFormData.company_registration_number,
-          }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (data.error) {
-        if (data.error === "company_registration_number 필드를 추가해주세요.") {
-          console.error("사업자등록번호 필드를 추가해주세요.");
-          setIsCompanyNoAvailable(false);
-        } else if (data.error === "사업자등록번호는 10자리 숫자여야 합니다.") {
-          console.error("사업자등록번호는 10자리 숫자여야 합니다.");
-          setIsCompanyNoAvailable(false);
-        } else if (data.error === "이미 등록된 사업자등록번호입니다.") {
-          console.error("이미 등록된 사업자등록번호입니다.");
-          setIsCompanyNoAvailable(false);
-        }
-      } else if (data.message) {
-        console.log(data.message);
-        setErrors((prev) => ({
-          ...prev,
-          company_registration_number: null, // 오류가 없으면 null로 설정
-        }));
-        setIsCompanyNoAvailable(true);
-      }
-    } catch (error) {
-      console.error("사업자등록번호 중복 확인 요청 중 오류 발생:", error);
-      setIsCompanyNoAvailable(false);
-    }
-  };
+  const handleCheckComponyNo = () =>
+    checkAvailability(
+      "company_registration_number",
+      "/accounts/seller/validate-registration-number/",
+      joinFormData.company_registration_number
+    ).then(setIsCompanyNoAvailable);
 
   // 입력 필드 순서
   const fieldOrder = [
@@ -205,7 +140,7 @@ export default function JoinForm({ formType, selectedTab }) {
       return { ...prev, [name]: value };
     });
 
-    setIsUsernameAvailable(false); // 아이디 입력이 바뀌면 다시 검사해야 하므로 false로 초기화
+    setIsUsernameAvailable(false);
 
     // 유효성 검사 실행
     const newErrors = validateField(name, value);
@@ -213,7 +148,6 @@ export default function JoinForm({ formType, selectedTab }) {
     if (name === "password" && !value) {
       setIsPasswordValid(false);
     }
-
     if (name === "confirmPassword" && !value) {
       setIsConfirmPasswordValid(false);
     }
@@ -224,7 +158,7 @@ export default function JoinForm({ formType, selectedTab }) {
 
       // 유효성 검사 통과 시 해당 필드의 에러를 삭제
       if (!newErrors[name]) {
-        delete updatedErrors[name]; // 에러 메시지가 없으면 해당 필드를 삭제
+        delete updatedErrors[name];
       }
 
       return updatedErrors;
@@ -232,50 +166,47 @@ export default function JoinForm({ formType, selectedTab }) {
   };
 
   // 개별 필드 유효성 검사
-
-  const validateField = (fieldName, value) => {
+  const validateField = (field, value) => {
     const newErrors = {};
-    const usernameRegex = /^[A-Za-z0-9]{1,20}$/;
-    const phoneRegex = /^(010)\d{7,8}$/;
-    const companyNoRegex = /^\d{10}$/;
-
     if (!value) {
-      newErrors[fieldName] = "이 필드는 필수 항목입니다.";
+      newErrors[field] = "이 필드는 필수 항목입니다.";
       return newErrors;
     }
 
-    if (fieldName === "username" && !usernameRegex.test(value)) {
-      newErrors.username =
-        "ID는 20자 이내의 영어 소문자, 대문자, 숫자만 가능합니다.";
-    } else if (fieldName === "password") {
-      if (value.length < 8) {
-        newErrors.password = "비밀번호는 8자 이상이어야 합니다.";
-      } else if (!/(?=.*[a-z])/.test(value)) {
-        newErrors.password =
-          "비밀번호는 한개 이상의 영소문자가 필수적으로 들어가야 합니다.";
-      } else if (!/(?=.*\d)/.test(value)) {
-        newErrors.password =
-          "비밀번호는 한개 이상의 숫자가 필수적으로 들어가야 합니다.";
-      } else {
-        setIsPasswordValid(true);
-      }
-    } else if (fieldName === "confirmPassword") {
-      if (value !== joinFormData.password) {
-        newErrors.confirmPassword = "비밀번호가 일치하지 않습니다.";
-      } else {
-        setIsConfirmPasswordValid(true);
-      }
-    } else if (fieldName === "phone_number" && !phoneRegex.test(value)) {
-      newErrors.phone_number =
-        "핸드폰번호는 01*으로 시작해야 하는 10~11자리 숫자여야 합니다.";
-    } else if (
-      fieldName === "company_registration_number" &&
-      !companyNoRegex.test(value)
-    ) {
-      newErrors.company_registration_number =
-        "사업자등록번호는 10자리 숫자입니다.";
+    switch (field) {
+      case "username":
+        if (!/^[A-Za-z0-9]{1,20}$/.test(value))
+          newErrors.username =
+            "ID는 20자 이내의 영어 소문자, 대문자, 숫자만 가능합니다.";
+        break;
+      case "password":
+        if (value.length < 8)
+          newErrors.password = "비밀번호는 8자 이상이어야 합니다.";
+        else if (!/(?=.*[a-z])/.test(value))
+          newErrors.password =
+            "비밀번호에 영소문자가 하나 이상 포함되어야 합니다.";
+        else if (!/(?=.*\d)/.test(value))
+          newErrors.password = "비밀번호에 숫자가 하나 이상 포함되어야 합니다.";
+        else setIsPasswordValid(true);
+        break;
+      case "confirmPassword":
+        if (value !== joinFormData.password)
+          newErrors.confirmPassword = "비밀번호가 일치하지 않습니다.";
+        else setIsConfirmPasswordValid(true);
+        break;
+      case "phone_number":
+        if (!/^(010)\d{7,8}$/.test(value))
+          newErrors.phone_number =
+            "핸드폰번호는 01*으로 시작하는 10~11자리 숫자여야 합니다.";
+        break;
+      case "company_registration_number":
+        if (!/^\d{10}$/.test(value))
+          newErrors.company_registration_number =
+            "사업자등록번호는 10자리 숫자입니다.";
+        break;
+      default:
+        break;
     }
-
     return newErrors;
   };
 
@@ -292,7 +223,7 @@ export default function JoinForm({ formType, selectedTab }) {
       Object.keys(allErrors).length === 0 &&
       isUsernameAvailable &&
       isCompanyNoAvailable
-    ); // 아이디 중복, 사업자인증 여부 체크 추가
+    );
   };
 
   // 회원가입하기
@@ -301,16 +232,15 @@ export default function JoinForm({ formType, selectedTab }) {
 
     if (!isUsernameAvailable) {
       alert("아이디 중복확인을 진행해주세요.");
-      return; // 제출을 막음
+      return;
     }
 
     if (!isCompanyNoAvailable) {
       alert("사업자등록번호 인증을 진행해주세요.");
-      return; // 제출을 막음
+      return;
     }
 
     if (validate()) {
-      // 유효성 통과 시 API 호출 등 로직 수행
       console.log("폼 데이터가 유효합니다: ", joinFormData);
 
       // 회원가입에 필요한 데이터 준비
@@ -321,18 +251,16 @@ export default function JoinForm({ formType, selectedTab }) {
         phone_number: joinFormData.phone_number,
       };
 
-      // 판매자일 경우 추가 정보
       if (selectedTab === "seller") {
         joinRequestData.company_registration_number =
           joinFormData.company_registration_number;
         joinRequestData.store_name = joinFormData.store_name;
       }
 
-      // 엔드포인트 설정
       const endpoint =
         selectedTab === "seller"
-          ? "https://estapi.openmarket.weniv.co.kr/accounts/seller/signup/"
-          : "https://estapi.openmarket.weniv.co.kr/accounts/buyer/signup/";
+          ? `${API_BASE_URL}/accounts/seller/signup/`
+          : `${API_BASE_URL}/accounts/buyer/signup/`;
 
       try {
         const response = await fetch(endpoint, {
@@ -343,13 +271,10 @@ export default function JoinForm({ formType, selectedTab }) {
           body: JSON.stringify(joinRequestData),
         });
 
-        // 응답을 JSON으로 파싱
-        const data = await response.json(); // 비동기 처리이므로 await 사용
+        const data = await response.json();
 
-        // 응답 상태 확인 후 처리
         if (response.ok) {
-          console.log("회원가입 성공");
-          alert("회원가입 성공!");
+          alert("회원가입이 완료되었습니다!");
           window.location.href = "/login";
         } else {
           console.log("회원가입 실패", data);
@@ -357,7 +282,7 @@ export default function JoinForm({ formType, selectedTab }) {
         }
       } catch (error) {
         console.error("회원가입 오류", error.message);
-        alert("회원가입 중 오류가 발생했습니다: " + error.message);
+        alert("회원가입 중 오류가 발생했습니다");
       }
     } else {
       console.log("폼 데이터에 오류가 있습니다: ", errors);
@@ -369,7 +294,7 @@ export default function JoinForm({ formType, selectedTab }) {
     <>
       <JoinFormWrap>
         <form onSubmit={handleSubmit}>
-          <InputField>
+          <InputForm>
             <InputTitle>아이디</InputTitle>
             <label htmlFor="username" className="sr-only">
               아이디를 입력하세요
@@ -525,7 +450,7 @@ export default function JoinForm({ formType, selectedTab }) {
                 {errors.store_name && <AlertMsg>{errors.store_name}</AlertMsg>}
               </>
             )}
-          </InputField>
+          </InputForm>
         </form>
       </JoinFormWrap>
       <CheckImg
