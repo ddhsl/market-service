@@ -41,19 +41,19 @@ export const AuthContextProvider = ({ children }) => {
     setIsLoggedIn(true);
     setIsSeller(userType === "seller");
     // 쿠키에 토큰 저장
-    document.cookie = `accessToken=${accessToken}; Secure; SameSite=Strict; Path=/`;
-    document.cookie = `refreshToken=${refreshToken}; Secure; SameSite=Strict; Path=/`;
-    document.cookie = `userType=${userType}; Secure; SameSite=Strict; Path=/`;
+    document.cookie = `accessToken=${accessToken}; Max-Age=86400; Path=/;`;
+    document.cookie = `refreshToken=${refreshToken}; Max-Age=86400; Path=/;`;
+    document.cookie = `userType=${userType}; Max-Age=86400; Path=/;`;
   };
 
   const logout = () => {
     setIsLoggedIn(false);
     setIsSeller(false);
     // 쿠키에서 토큰 제거
-    document.cookie = "accessToken=; Max-Age=0; Path=/";
-    document.cookie = "refreshToken=; Max-Age=0; Path=/";
-    document.cookie = "userType=; Max-Age=0; Path=/";
-    document.cookie = "csrftoken=; Max-Age=0; Path=/";
+    document.cookie = "accessToken=; Max-Age=0; Path=/;";
+    document.cookie = "refreshToken=; Max-Age=0; Path=/;";
+    document.cookie = "userType=; Max-Age=0; Path=/;";
+    document.cookie = "csrftoken=; Max-Age=0; Path=/;";
     // 로컬스토리지 데이터 제거
     localStorage.removeItem("username");
     localStorage.removeItem("name");
