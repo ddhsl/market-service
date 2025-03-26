@@ -1,9 +1,8 @@
 import styled from "styled-components";
+import { useOrder } from "../../../context/OrderContext";
 
-export default function PaymentForm({ paymentMethod, setPaymentMethod }) {
-  const handlePaymentChange = (event) => {
-    setPaymentMethod(event.target.value);
-  };
+export default function PaymentForm() {
+  const { orderData, updateOrderData } = useOrder();
 
   return (
     <PaymentMethodWrap>
@@ -13,8 +12,8 @@ export default function PaymentForm({ paymentMethod, setPaymentMethod }) {
             type="radio"
             name="payment"
             value="card"
-            checked={paymentMethod === "card"}
-            onChange={handlePaymentChange}
+            checked={orderData.paymentMethod === "card"}
+            onChange={() => updateOrderData({ paymentMethod: "card" })}
           />
           신용/체크카드
         </StyledLabel>
@@ -25,8 +24,8 @@ export default function PaymentForm({ paymentMethod, setPaymentMethod }) {
             type="radio"
             name="payment"
             value="deposit"
-            checked={paymentMethod === "deposit"}
-            onChange={handlePaymentChange}
+            checked={orderData.paymentMethod === "deposit"}
+            onChange={() => updateOrderData({ paymentMethod: "deposit" })}
           />
           무통장 입금
         </StyledLabel>
@@ -37,8 +36,8 @@ export default function PaymentForm({ paymentMethod, setPaymentMethod }) {
             type="radio"
             name="payment"
             value="phone"
-            checked={paymentMethod === "phone"}
-            onChange={handlePaymentChange}
+            checked={orderData.paymentMethod === "phone"}
+            onChange={() => updateOrderData({ paymentMethod: "phone" })}
           />
           휴대폰 결제
         </StyledLabel>
@@ -49,8 +48,8 @@ export default function PaymentForm({ paymentMethod, setPaymentMethod }) {
             type="radio"
             name="payment"
             value="naverpay"
-            checked={paymentMethod === "naverpay"}
-            onChange={handlePaymentChange}
+            checked={orderData.paymentMethod === "naverpay"}
+            onChange={() => updateOrderData({ paymentMethod: "naverpay" })}
           />
           네이버페이
         </StyledLabel>
@@ -61,8 +60,8 @@ export default function PaymentForm({ paymentMethod, setPaymentMethod }) {
             type="radio"
             name="payment"
             value="kakaopay"
-            checked={paymentMethod === "kakaopay"}
-            onChange={handlePaymentChange}
+            checked={orderData.paymentMethod === "kakaopay"}
+            onChange={() => updateOrderData({ paymentMethod: "kakaopay" })}
           />
           카카오페이
         </StyledLabel>
