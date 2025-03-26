@@ -26,6 +26,7 @@ export default function DeleteModal({ onClose, handleDelete, item }) {
             color="var(--sub-color)"
             border="1px solid #c4c4c4"
             onClick={onClose}
+            buttonType="cancel"
           >
             아니오
           </Button>

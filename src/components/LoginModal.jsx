@@ -35,6 +35,7 @@ export default function LoginModal({ onClose }) {
             backgroundColor="#fff"
             color="var(--sub-color)"
             border="1px solid #c4c4c4"
+            buttonType="cancel"
             onClick={handleNoClick}
           >
             아니오

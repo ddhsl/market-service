@@ -25,6 +25,7 @@ export default function ConfirmModal({ onConfirm, onCancel }) {
             color="var(--sub-color)"
             border="1px solid #c4c4c4"
             onClick={onCancel}
+            buttonType="cancel"
           >
             아니오
           </Button>
