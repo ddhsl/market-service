@@ -79,7 +79,11 @@ export default function DashboardSection() {
           </DashboardLabel>
         ))}
       </DashboardField>
-      {error && <p>{error}</p>}
+      {error && (
+        <p style={{ color: "#EB5757", padding: "20px", textAlign: "center" }}>
+          {error}
+        </p>
+      )}
       {!loading && !error && (
         <div>
           {products && products.length > 0 ? (
@@ -91,7 +95,9 @@ export default function DashboardSection() {
               />
             ))
           ) : (
-            <p>등록된 상품이 없습니다.</p>
+            <p style={{ padding: "20px", textAlign: "center" }}>
+              등록된 상품이 없습니다.
+            </p>
           )}
         </div>
       )}
