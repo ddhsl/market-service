@@ -67,7 +67,7 @@ export default function FinalPaymentDetails({
           <Button
             onClick={handleOrderSubmit}
             style={{
-              backgroundColor: isAgreed ? "var(--main-color)" : "#D3D3D3",
+              backgroundColor: isAgreed ? "" : "#D3D3D3",
               cursor: isAgreed ? "pointer" : "not-allowed",
             }}
           >
