@@ -37,7 +37,7 @@ const AccountTabStyle = styled.button`
 
   z-index: ${(props) => (props.isSelected ? "100" : "70")};
   width: 277px;
-  height: 80px;
+  height: 70px;
   border: 1px solid #c4c4c4;
   border-bottom: ${(props) =>
     props.isSelected ? "none" : "1px solid #c4c4c4"};
