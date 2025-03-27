@@ -306,12 +306,20 @@ export default function RegisterSection({ isEditMode, productId }) {
         <ButtonWrap>
           <Button
             type="button"
+            $width="150px"
+            $height="50px"
+            $fontSize="18px"
+            $backgroundColor="#fff"
+            $color="var(--sub-color)"
+            $border="1px solid #c4c4c4"
             $buttonType="cancel"
             onClick={() => navigate("/seller-center")}
           >
             취소
           </Button>
-          <Button type="submit">{isEditMode ? "수정하기" : "등록하기"}</Button>
+          <Button type="submit" $width="150px" $height="50px" $fontSize="18px">
+            {isEditMode ? "수정하기" : "등록하기"}
+          </Button>
         </ButtonWrap>
       </form>
     </RegisterSectionWrap>
@@ -402,17 +410,6 @@ const ButtonWrap = styled.div`
   gap: 10px;
   margin-top: 50px;
   margin-bottom: 130px;
-  & > button {
-    width: 150px;
-    height: 50px;
-    font-size: 18px;
-  }
-
-  & > button:nth-child(1) {
-    color: var(--sub-color);
-    background-color: #fff;
-    border: 1px solid #c4c4c4;
-  }
 `;
 const ButtonGroup = styled.div`
   display: flex;
