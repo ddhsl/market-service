@@ -30,16 +30,16 @@ export default function CartModal({ onClose }) {
         <p>장바구니로 이동하시겠습니까?</p>
         <div>
           <Button
-            width="100px"
-            height="40px"
-            backgroundColor="#fff"
-            color="var(--sub-color)"
-            border="1px solid #c4c4c4"
+            $width="100px"
+            $height="40px"
+            $backgroundColor="#fff"
+            $color="var(--sub-color)"
+            $border="1px solid #c4c4c4"
             onClick={handleNoClick}
           >
             아니오
           </Button>
-          <Button width="100px" height="40px" onClick={handleYesClick}>
+          <Button $width="100px" $height="40px" onClick={handleYesClick}>
             예
           </Button>
         </div>

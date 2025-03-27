@@ -19,17 +19,17 @@ export default function ConfirmModal({ onConfirm, onCancel }) {
         <p>정말로 삭제하시겠습니까?</p>
         <div>
           <Button
-            width="100px"
-            height="40px"
-            backgroundColor="#fff"
-            color="var(--sub-color)"
-            border="1px solid #c4c4c4"
+            $width="100px"
+            $height="40px"
+            $backgroundColor="#fff"
+            $color="var(--sub-color)"
+            $border="1px solid #c4c4c4"
             onClick={onCancel}
-            buttonType="cancel"
+            $buttonType="cancel"
           >
             아니오
           </Button>
-          <Button width="100px" height="40px" onClick={onConfirm}>
+          <Button $width="100px" $height="40px" onClick={onConfirm}>
             예
           </Button>
         </div>
