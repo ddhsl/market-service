@@ -86,6 +86,7 @@ export default function CartItem({
 }
 
 const CartItemField = styled.article`
+  position: relative;
   width: 100%;
   border: 2px solid #e0e0e0;
   border-radius: 10px;
@@ -96,7 +97,7 @@ const CartItemField = styled.article`
   margin-bottom: 10px;
   & > img {
     position: absolute;
-    right: 105px;
+    right: 20px;
     cursor: pointer;
   }
 `;
