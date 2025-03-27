@@ -77,6 +77,7 @@ const PaymentMethodWrap = styled.ul`
   border-left: none;
   border-right: none;
   width: 760px;
+  max-width: 900px;
   padding: 18px;
   padding-left: 5px;
 `;
