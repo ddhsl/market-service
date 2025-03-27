@@ -307,7 +307,7 @@ export default function RegisterSection({ isEditMode, productId }) {
           <Button
             type="button"
             $buttonType="cancel"
-            onClick={navigate("/seller-center")}
+            onClick={() => navigate("/seller-center")}
           >
             취소
           </Button>
