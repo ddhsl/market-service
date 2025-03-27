@@ -72,6 +72,7 @@ export default function ShippingForm({ onSubmit }) {
   const handlePostcodeSearch = (e) => {
     e.preventDefault(); // 폼 제출 방지
     if (isPostcodeScriptLoaded && window.daum && window.daum.Postcode) {
+      // 우편번호 서비스를 팝업으로 여는 옵션 설정
       new window.daum.Postcode({
         oncomplete: function (data) {
           // 우편번호 검색 결과로 주소 입력란에 값 설정
@@ -82,6 +83,8 @@ export default function ShippingForm({ onSubmit }) {
             },
           });
         },
+        // 현재 페이지 내에 팝업을 띄우기 위한 설정
+        popup: true, // 기존에 새 탭을 여는 것과는 다르게, 페이지 내 팝업을 띄움
       }).open();
     } else {
       alert("우편번호 서비스가 준비되지 않았습니다.");
