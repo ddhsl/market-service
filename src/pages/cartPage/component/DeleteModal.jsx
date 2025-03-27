@@ -20,19 +20,19 @@ export default function DeleteModal({ onClose, handleDelete, item }) {
         <p>상품을 삭제하시겠습니까?</p>
         <div>
           <Button
-            width="100px"
-            height="40px"
-            backgroundColor="#fff"
-            color="var(--sub-color)"
-            border="1px solid #c4c4c4"
+            $width="100px"
+            $height="40px"
+            $backgroundColor="#fff"
+            $color="var(--sub-color)"
+            $border="1px solid #c4c4c4"
             onClick={onClose}
-            buttonType="cancel"
+            $buttonType="cancel"
           >
             아니오
           </Button>
           <Button
-            width="100px"
-            height="40px"
+            $width="100px"
+            $height="40px"
             onClick={() => {
               if (item && item.id) {
                 handleDelete(item.id);

@@ -30,17 +30,17 @@ export default function LoginModal({ onClose }) {
         <p>로그인 하시겠습니까?</p>
         <div>
           <Button
-            width="100px"
-            height="40px"
-            backgroundColor="#fff"
-            color="var(--sub-color)"
-            border="1px solid #c4c4c4"
-            buttonType="cancel"
+            $width="100px"
+            $height="40px"
+            $backgroundColor="#fff"
+            $color="var(--sub-color)"
+            $border="1px solid #c4c4c4"
+            $buttonType="cancel"
             onClick={handleNoClick}
           >
             아니오
           </Button>
-          <Button width="100px" height="40px" onClick={handleYesClick}>
+          <Button $width="100px" $height="40px" onClick={handleYesClick}>
             예
           </Button>
         </div>
