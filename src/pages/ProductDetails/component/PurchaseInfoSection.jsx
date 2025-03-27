@@ -40,7 +40,7 @@ const PurchaseInfoWrap = styled.ul`
 `;
 
 const PurchaseInfoTab = styled.li`
-  width: 320px;
+  width: 100%;
   height: 60px;
   color: var(--sub-color);
   font-weight: bold;
