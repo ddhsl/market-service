@@ -245,6 +245,8 @@ const ProductInfoSection = styled.section`
   & > img {
     width: 600px;
     height: 600px;
+    max-width: 800px;
+    max-height: 800px;
   }
 `;
 const ProductDetail = styled.div`
@@ -258,7 +260,7 @@ const ProductDetail = styled.div`
 const QuantitySection = styled.div`
   display: flex;
   align-items: center;
-  width: 630px;
+  width: 100%;
   height: 110px;
   border: 1px solid #c4c4c4;
   border-left: none;
