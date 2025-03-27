@@ -6,7 +6,9 @@ import Button from "../../../components/Button";
 import AlertMsg from "../../../components/AlertMsg";
 import { useAuth } from "../../../context/AuthContext";
 import { API_BASE_URL } from "../../../constants/api";
+import { useNavigate } from "react-router-dom";
 export default function LoginForm({ selectedTab }) {
+  const navigate = useNavigate();
   const { login } = useAuth();
   const [loginError, setLoginError] = useState("");
   const [loginFormData, setLoginFormData] = useState({
@@ -70,7 +72,7 @@ export default function LoginForm({ selectedTab }) {
         localStorage.setItem("username", data.user.username);
 
         alert("로그인에 성공했습니다!");
-        window.location.href = "/";
+        navigate("/");
       } else {
         setLoginError(data.error || "로그인에 실패했습니다.");
       }
