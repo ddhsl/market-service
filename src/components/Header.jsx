@@ -176,7 +176,7 @@ const DropdownMenu = styled.div`
 const DropdownItem = styled.button`
   display: block;
   width: 100%;
-  padding: 20px 20px;
+  padding: 15px 15px;
   background: none;
   border: none;
   text-align: center;
@@ -186,6 +186,5 @@ const DropdownItem = styled.button`
   &:hover {
     background-color: #f5f5f5;
     color: var(--main-color);
-    font-weight: bold;
   }
 `;
