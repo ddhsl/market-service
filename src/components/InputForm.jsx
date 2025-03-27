@@ -1,6 +1,7 @@
 import styled from "styled-components";
-export default function InputForm(props) {
-  return <StyledInputField {...props} />;
+
+export default function InputForm({ onSubmit, ...props }) {
+  return <StyledInputField onSubmit={onSubmit} {...props} />;
 }
 
 const StyledInputField = styled.form`
