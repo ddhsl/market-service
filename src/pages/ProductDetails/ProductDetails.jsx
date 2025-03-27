@@ -93,7 +93,7 @@ export default function ProductDetails() {
           "장바구니에 상품을 담는 데 문제가 발생했습니다. 다시 시도해주세요."
         );
       }
-    } else {
+    } else if (!isSellerUser) {
       setIsLoginModalOpen(true);
     }
   }
@@ -142,7 +142,7 @@ export default function ProductDetails() {
         quantity: purchaseQuantity,
       };
       navigate("/payment", { state: { selectedItems: [selectedItem] } });
-    } else {
+    } else if (!isSellerUser) {
       setIsLoginModalOpen(true);
     }
   };
