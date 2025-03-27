@@ -304,7 +304,11 @@ export default function RegisterSection({ isEditMode, productId }) {
           />
         </div>
         <ButtonWrap>
-          <Button type="button" onClick={() => alert("취소 버튼 클릭됨")}>
+          <Button
+            type="button"
+            $buttonType="cancel"
+            onClick={navigate("/seller-center")}
+          >
             취소
           </Button>
           <Button type="submit">{isEditMode ? "수정하기" : "등록하기"}</Button>
