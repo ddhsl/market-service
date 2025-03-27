@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import Button from "../../../components/Button";
 import { useNavigate } from "react-router-dom";
 import { getCookie } from "../../../utils/cookieUtils";
@@ -12,8 +12,12 @@ export default function ActiveItem({ product, onDelete }) {
   const navigate = useNavigate();
   const { refreshAccessToken } = useAuth();
 
-  const handleEditClick = () => {
+  const navigateToEdit = useCallback(() => {
     navigate(`/register/${product.id}`, { state: { product } });
+  }, [navigate, product]);
+
+  const handleEditClick = () => {
+    navigateToEdit();
   };
 
   const handleDeleteClick = () => {
