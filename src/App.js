@@ -39,7 +39,7 @@ function App() {
   }
 
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/market-service">
       <GlobalStyle />
       <Routes>
         <Route path="/" element={<Home />} />
