@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { API_BASE_URL } from "../constants/api";
 
 // AuthContext 생성
 const AuthContext = createContext({
@@ -13,6 +14,7 @@ const AuthContext = createContext({
     password: "",
   },
   setLoginFormData: () => {},
+  refreshAccessToken: () => {}, // 리프레시 토큰 갱신 함수 추가
 });
 
 // AuthContextProvider 컴포넌트
@@ -37,7 +39,7 @@ export const AuthContextProvider = ({ children }) => {
     }
   }, []);
 
-  const login = (userType, accessToken, refreshToken, userData) => {
+  const login = (userType, accessToken, refreshToken) => {
     setIsLoggedIn(true);
     setIsSeller(userType === "seller");
     // 쿠키에 토큰 저장
@@ -60,6 +62,41 @@ export const AuthContextProvider = ({ children }) => {
     localStorage.removeItem("user_type");
   };
 
+  // 리프레시 토큰을 사용하여 엑세스 토큰 갱신 함수
+  const refreshAccessToken = async () => {
+    const refreshToken = getCookie("refreshToken");
+    if (!refreshToken) {
+      setIsLoggedIn(false); // 리프레시 토큰 없으면 로그아웃 처리
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/accounts/token/refresh/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ refresh: refreshToken }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const newAccessToken = data.access;
+
+        // 새로운 액세스 토큰을 쿠키에 저장
+        document.cookie = `accessToken=${newAccessToken}; Max-Age=86400; Path=/;`;
+
+        return newAccessToken;
+      } else {
+        throw new Error("리프레시 토큰 갱신 실패");
+      }
+    } catch (error) {
+      console.error("리프레시 토큰 갱신 오류:", error);
+      setIsLoggedIn(false); // 토큰 갱신 실패 시 로그아웃 처리
+      return null;
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -71,6 +108,7 @@ export const AuthContextProvider = ({ children }) => {
         setLoginError,
         loginFormData,
         setLoginFormData,
+        refreshAccessToken, // 리프레시 토큰 갱신 함수 제공
       }}
     >
       {children}

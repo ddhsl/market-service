@@ -5,10 +5,12 @@ import { useNavigate } from "react-router-dom";
 import { getCookie } from "../../../utils/cookieUtils";
 import ConfirmModal from "./ConfirmModal";
 import { API_BASE_URL } from "../../../constants/api";
+import { useAuth } from "../../../context/AuthContext";
 
 export default function ActiveItem({ product, onDelete }) {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const navigate = useNavigate();
+  const { refreshAccessToken } = useAuth();
 
   const handleEditClick = () => {
     navigate(`/register/${product.id}`, { state: { product } });
@@ -18,24 +20,70 @@ export default function ActiveItem({ product, onDelete }) {
     setIsConfirmModalOpen(true);
   };
 
+  // 토큰 확인 및 갱신 함수
+  const getValidToken = async () => {
+    let accessToken = getCookie("accessToken");
+    if (!accessToken) {
+      accessToken = await refreshAccessToken();
+    }
+    return accessToken;
+  };
+
+  // 상품 삭제 API 요청 함수
+  const deleteProductRequest = async (accessToken) => {
+    const response = await fetch(`${API_BASE_URL}/products/${product.id}/`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || "상품 삭제에 실패했습니다.");
+    }
+
+    return response;
+  };
+
   const handleConfirmDelete = async () => {
     setIsConfirmModalOpen(false);
-    try {
-      const accessToken = getCookie("accessToken");
-      const response = await fetch(`${API_BASE_URL}/products/${product.id}/`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || "상품 삭제에 실패했습니다.");
+    try {
+      // 유효한 토큰 얻기
+      let accessToken = await getValidToken();
+
+      if (!accessToken) {
+        throw new Error("토큰 갱신에 실패했습니다.");
       }
 
-      if (onDelete) {
-        onDelete(product.id);
+      try {
+        // 첫 번째 삭제 시도
+        await deleteProductRequest(accessToken);
+
+        // 삭제 성공 시 콜백 호출
+        if (onDelete) {
+          onDelete(product.id);
+        }
+      } catch (error) {
+        // 401 에러 시 토큰 재갱신 시도
+        if (error.message.includes("401")) {
+          accessToken = await refreshAccessToken();
+
+          if (!accessToken) {
+            throw new Error("리프레시 토큰으로 갱신 실패");
+          }
+
+          // 재갱신된 토큰으로 다시 삭제 시도
+          await deleteProductRequest(accessToken);
+
+          if (onDelete) {
+            onDelete(product.id);
+          }
+        } else {
+          // 다른 에러는 그대로 throw
+          throw error;
+        }
       }
     } catch (error) {
       console.error("상품 삭제 오류:", error);
@@ -91,10 +139,10 @@ export default function ActiveItem({ product, onDelete }) {
             <Button
               type="button"
               onClick={handleDeleteClick}
-              backgroundColor="#fff"
-              color="var(--sub-color)"
-              border="1px solid #c4c4c4"
-              buttonType="cancel"
+              $backgroundColor="#fff"
+              $color="var(--sub-color)"
+              $border="1px solid #c4c4c4"
+              $buttonType="cancel"
             >
               삭제
             </Button>

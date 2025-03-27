@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import Header from "../../components/Header";
@@ -10,6 +10,7 @@ import EmptyCartMessage from "./component/EmptyCartMessage";
 import DeleteModal from "./component/DeleteModal";
 import { API_BASE_URL } from "../../constants/api";
 import Loader from "../../components/Loader";
+import { useAuth } from "../../context/AuthContext";
 
 const cartLabels = [
   { text: "상품정보", flex: 5 },
@@ -18,6 +19,7 @@ const cartLabels = [
 ];
 
 export default function Cart() {
+  const { refreshAccessToken } = useAuth();
   const [cartItems, setCartItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -26,34 +28,81 @@ export default function Cart() {
   const [selectedCartItems, setSelectedCartItems] = useState(new Set());
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchCartItems = async () => {
-      setError(null); //기존 오류 초기화
+  const fetchWithTokenRetry = useCallback(
+    async (url, options) => {
+      let accessToken = getCookie("accessToken");
+
       try {
-        const accessToken = getCookie("accessToken");
-        const response = await fetch(`${API_BASE_URL}/cart/`, {
-          method: "GET",
+        const response = await fetch(url, {
+          ...options,
           headers: {
+            ...options.headers,
             Authorization: `Bearer ${accessToken}`,
           },
         });
 
-        if (!response.ok) {
-          throw new Error(`API 요청 실패: ${response.status}`);
+        // 토큰 만료 시 토큰 새로고침 시도
+        if (response.status === 401) {
+          const newAccessToken = await refreshAccessToken();
+
+          if (!newAccessToken) {
+            throw new Error("리프레시 토큰으로 갱신 실패");
+          }
+
+          // 새 토큰으로 요청 재시도
+          const retryResponse = await fetch(url, {
+            ...options,
+            headers: {
+              ...options.headers,
+              Authorization: `Bearer ${newAccessToken}`,
+            },
+          });
+
+          if (!retryResponse.ok) {
+            throw new Error(`API 요청 실패: ${retryResponse.status}`);
+          }
+
+          return retryResponse;
         }
 
-        const data = await response.json();
-        setCartItems(data.results);
+        // 정상 응답인 경우
+        if (response.ok) {
+          return response;
+        }
+
+        // 다른 오류 상황
+        throw new Error(`API 요청 실패: ${response.status}`);
       } catch (error) {
-        console.error("장바구니 아이템을 가져오는 데 실패했습니다.", error);
+        console.error("API 요청 중 오류 발생:", error);
+        throw error;
+      }
+    },
+    [refreshAccessToken]
+  );
+
+  // 장바구니 아이템 불러오기
+  useEffect(() => {
+    const fetchCartItems = async () => {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const response = await fetchWithTokenRetry(`${API_BASE_URL}/cart/`, {
+          method: "GET",
+        });
+
+        const data = await response.json();
+        setCartItems(data.results || []);
+      } catch (error) {
         setError(error.message);
+        setCartItems([]);
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchCartItems();
-  }, []);
+  }, [fetchWithTokenRetry]);
 
   // 아이템 선택/해제 핸들러
   const handleItemSelection = (itemId) => {
@@ -93,21 +142,18 @@ export default function Cart() {
   // 장바구니 수량 수정
   const handleQuantityChange = async (itemId, newQuantity) => {
     try {
-      const accessToken = getCookie("accessToken");
-      const response = await fetch(`${API_BASE_URL}/cart/${itemId}/`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ quantity: newQuantity }),
-      });
+      const response = await fetchWithTokenRetry(
+        `${API_BASE_URL}/cart/${itemId}/`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ quantity: newQuantity }),
+        }
+      );
 
-      if (!response.ok) {
-        throw new Error(`수량 업데이트 실패: ${response.status}`);
-      }
-
-      const updatedItem = await response.json(); // 서버에서 변경된 데이터 받아오기
+      const updatedItem = await response.json();
 
       setCartItems((prevItems) =>
         prevItems.map((item) =>
@@ -122,33 +168,21 @@ export default function Cart() {
     }
   };
 
-  if (isLoading) return <Loader />;
-
-  if (error) {
-    return <ErrorMessage>오류 발생: {error}</ErrorMessage>;
-  }
-
-  const hasCartItems = cartItems.length > 0;
-
   // 장바구니 아이템 삭제하기
   const handleDelete = async (itemId) => {
     try {
-      setError(null); //기존 오류 초기화
-      const accessToken = getCookie("accessToken");
-      const response = await fetch(`${API_BASE_URL}/cart/${itemId}/`, {
+      await fetchWithTokenRetry(`${API_BASE_URL}/cart/${itemId}/`, {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
       });
-
-      if (!response.ok) {
-        throw new Error(`삭제 실패: ${response.status}`);
-      }
 
       setCartItems((prevItems) =>
         prevItems.filter((item) => item.id !== itemId)
       );
+      setSelectedCartItems((prevSelected) => {
+        const newSelected = new Set(prevSelected);
+        newSelected.delete(itemId);
+        return newSelected;
+      });
     } catch (error) {
       console.error("서버 오류가 발생했습니다:", error);
       setError(error.message);
@@ -176,6 +210,14 @@ export default function Cart() {
 
   const productDiscount = 0;
   const paymentAmount = totalProductPrice - productDiscount + shippingFee;
+
+  if (isLoading) return <Loader />;
+
+  if (error) {
+    return <ErrorMessage>오류 발생: {error}</ErrorMessage>;
+  }
+
+  const hasCartItems = cartItems.length > 0;
 
   return (
     <>
@@ -219,7 +261,7 @@ export default function Cart() {
           handleDelete={handleDelete}
           onClose={() => {
             setIsOpenDeleteModal(false);
-            setItemToDelete(null); // 모달 닫을 때 초기화
+            setItemToDelete(null);
           }}
           item={itemToDelete}
         />

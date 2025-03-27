@@ -11,14 +11,15 @@ import {
   ProductName,
   Price,
 } from "../../styles/mainStyle";
-import { useAuth } from "../../context/AuthContext";
 import LoginModal from "../../components/LoginModal";
 import CartModal from "./component/CartModal";
 import { getCookie } from "../../utils/cookieUtils";
 import { API_BASE_URL } from "../../constants/api";
 import Loader from "../../components/Loader";
+import { useAuth } from "../../context/AuthContext";
 
 export default function ProductDetails() {
+  const { refreshAccessToken } = useAuth();
   const { id } = useParams();
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);
@@ -43,31 +44,49 @@ export default function ProductDetails() {
   async function handleCart() {
     if (isLoggedIn && !isSeller) {
       try {
-        const accessToken = getCookie("accessToken");
+        let accessToken = getCookie("accessToken");
 
         if (!accessToken) {
           setIsLoginModalOpen(true);
           return;
         }
 
-        const response = await fetch(`${API_BASE_URL}/cart/`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
-          body: JSON.stringify({
-            product_id: product.id,
-            quantity: purchaseQuantity,
-          }),
-        });
+        const addToCart = async (token) => {
+          const response = await fetch(`${API_BASE_URL}/cart/`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              product_id: product.id,
+              quantity: purchaseQuantity,
+            }),
+          });
 
-        if (!response.ok) {
-          throw new Error(`API 요청 실패: ${response.status}`);
+          if (!response.ok) {
+            throw new Error(`API request failed: ${response.status}`);
+          }
+
+          return response.json();
+        };
+
+        try {
+          const data = await addToCart(accessToken);
+          console.log(data.detail);
+          setIsCartModalOpen(true);
+        } catch (error) {
+          // If the first attempt fails, try refreshing the token
+          const newAccessToken = await refreshAccessToken();
+
+          if (!newAccessToken) {
+            throw new Error("Failed to refresh access token");
+          }
+
+          const data = await addToCart(newAccessToken);
+          console.log(data.detail);
+          setIsCartModalOpen(true);
         }
-        const data = await response.json();
-        console.log(data.detail);
-        setIsCartModalOpen(true);
       } catch (error) {
         console.error(error, "서버 오류가 발생했습니다.");
         alert(
@@ -133,11 +152,11 @@ export default function ProductDetails() {
       <Header />
       <ProductInfoSection>
         <h2 className="sr-only">상품정보</h2>
-        <ProductImg variant="detail" src={product.image} alt={product.name} />
+        <ProductImg $variant="detail" src={product.image} alt={product.name} />
         <ProductDetail>
-          <StoreName variant="detail">{product.seller.store_name}</StoreName>
-          <ProductName variant="detail">{product.name}</ProductName>
-          <Price variant="detail">
+          <StoreName $variant="detail">{product.seller.store_name}</StoreName>
+          <ProductName $variant="detail">{product.name}</ProductName>
+          <Price $variant="detail">
             {product.price.toLocaleString()} <span>원</span>{" "}
           </Price>
 
@@ -164,7 +183,7 @@ export default function ProductDetails() {
                 개
               </p>
               <Price
-                variant="detail"
+                $variant="detail"
                 style={{
                   color: "var(--main-color)",
                 }}
@@ -178,24 +197,24 @@ export default function ProductDetails() {
           </OrderSummary>
 
           <Button
-            width="416px"
-            height="60px"
-            backgroundColor={isButtonDisabled ? "#c4c4c4" : ""}
+            $width="416px"
+            $height="60px"
+            $backgroundColor={isButtonDisabled ? "#c4c4c4" : ""}
             cursor={isButtonDisabled ? "not-allowed" : "pointer"}
             onClick={handleDirectPurchase}
-            disabled={isButtonDisabled}
+            $disabled={isButtonDisabled}
           >
             바로 구매
           </Button>
 
           <Button
-            width="200px"
-            height="60px"
-            backgroundColor={isButtonDisabled ? "#c4c4c4" : "#8b8b8b"}
-            buttonType="cart"
-            marginLeft="14px"
+            $width="200px"
+            $height="60px"
+            $backgroundColor={isButtonDisabled ? "#c4c4c4" : "#8b8b8b"}
+            $buttonType="cart"
+            $marginLeft="14px"
             onClick={handleCart}
-            disabled={isButtonDisabled}
+            $disabled={isButtonDisabled}
           >
             장바구니
           </Button>

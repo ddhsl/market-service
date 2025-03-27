@@ -11,6 +11,7 @@ import FinalPaymentDetails from "./component/FinalPaymentDetails";
 import { getCookie } from "../../utils/cookieUtils";
 import { API_BASE_URL } from "../../constants/api";
 import { useOrder } from "../../context/OrderContext";
+import { useAuth } from "../../context/AuthContext";
 
 const paymentLabels = [
   { text: "상품정보", flex: 4 },
@@ -20,6 +21,7 @@ const paymentLabels = [
 ];
 
 export default function Payment() {
+  const { refreshAccessToken } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const selectedItems = location.state?.selectedItems || [];
@@ -50,7 +52,16 @@ export default function Payment() {
   // 주문 생성 함수
   const createOrder = async (orderData) => {
     try {
-      const accessToken = getCookie("accessToken");
+      let accessToken = getCookie("accessToken");
+
+      // 토큰이 없으면 리프레시 시도
+      if (!accessToken) {
+        accessToken = await refreshAccessToken();
+      }
+
+      if (!accessToken) {
+        throw new Error("토큰 갱신에 실패했습니다.");
+      }
 
       const response = await fetch(`${API_BASE_URL}/order/`, {
         method: "POST",
@@ -62,9 +73,37 @@ export default function Payment() {
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error("주문 생성에 실패했습니다. 응답:", errorText);
-        throw new Error("주문 생성에 실패했습니다.");
+        if (response.status === 401) {
+          // 401 에러 시 토큰 갱신 재시도
+          accessToken = await refreshAccessToken();
+
+          if (!accessToken) {
+            throw new Error("리프레시 토큰으로 갱신 실패");
+          }
+
+          const retryResponse = await fetch(`${API_BASE_URL}/order/`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(orderData),
+          });
+
+          if (!retryResponse.ok) {
+            const errorText = await retryResponse.text();
+            console.error("주문 생성에 실패했습니다. 응답:", errorText);
+            throw new Error(`주문 생성 실패: ${retryResponse.status}`);
+          }
+
+          const result = await retryResponse.json();
+          console.log("주문 생성 성공:", result);
+          return result;
+        } else {
+          const errorText = await response.text();
+          console.error("주문 생성에 실패했습니다. 응답:", errorText);
+          throw new Error(`주문 생성 실패: ${response.status}`);
+        }
       }
 
       const result = await response.json();
@@ -72,10 +111,10 @@ export default function Payment() {
       return result;
     } catch (error) {
       console.error("주문 생성 오류:", error);
-      alert("주문 생성 오류:", error);
+      alert(`주문 생성 중 오류가 발생했습니다: ${error.message}`);
+      return null;
     }
   };
-
   // 휴대폰 번호를 하나의 문자열로 결합
   const formatPhoneNumber = (phone) =>
     `${phone.first}${phone.middle}${phone.last}`;

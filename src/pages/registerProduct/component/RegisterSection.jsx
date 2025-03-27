@@ -5,7 +5,9 @@ import ImageUpload from "./ImageUpload";
 import { useNavigate, useLocation } from "react-router-dom";
 import { getCookie } from "../../../utils/cookieUtils";
 import { API_BASE_URL } from "../../../constants/api";
+import { useAuth } from "../../../context/AuthContext";
 export default function RegisterSection({ isEditMode, productId }) {
+  const { refreshAccessToken } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const product = location.state?.product;
@@ -85,69 +87,128 @@ export default function RegisterSection({ isEditMode, productId }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.name.trim()) {
-      alert("상품명을 입력해주세요.");
-      return;
-    }
-
-    if (!formData.price.trim()) {
-      alert("판매가를 입력해주세요.");
-      return;
-    }
-
-    const priceValue = formData.price.replace(/[^\d]/g, "");
-    const priceInt = parseInt(priceValue, 10);
-
-    if (isNaN(priceInt)) {
-      alert("판매가는 유효한 정수여야 합니다.");
-      return;
-    }
-
-    const data = new FormData();
-    data.append("name", formData.name);
-    data.append("info", formData.info);
-    data.append("price", priceInt);
-    data.append("shipping_method", formData.shipping_method);
-    data.append("shipping_fee", formData.shipping_fee);
-    data.append("stock", formData.stock);
-
-    if (image instanceof File) {
-      data.append("image", image);
-    } else if (image && typeof image === "string") {
-      data.append("image_url", image);
-    } else {
-      alert("상품 이미지를 선택해주세요.");
-      return;
-    }
-
-    try {
-      const accessToken = getCookie("accessToken");
-      const response = await fetch(
-        isEditMode
-          ? `${API_BASE_URL}/products/${productId}/`
-          : `${API_BASE_URL}/products/`,
-        {
-          method: isEditMode ? "PUT" : "POST",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-          body: data,
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.text();
-        console.error("서버 응답 오류:", errorData);
-        alert(`상품 ${isEditMode ? "수정" : "등록"} 실패: ${errorData}`);
-        return;
+    // 입력 검증 함수 분리
+    const validateForm = () => {
+      if (!formData.name.trim()) {
+        alert("상품명을 입력해주세요.");
+        return false;
       }
 
-      const result = await response.json();
-      alert(`상품이 성공적으로 ${isEditMode ? "수정" : "등록"}되었습니다.`);
-      navigate(`/product-details/${result.id}`);
+      if (!formData.price.trim()) {
+        alert("판매가를 입력해주세요.");
+        return false;
+      }
+
+      const priceValue = formData.price.replace(/[^\d]/g, "");
+      const priceInt = parseInt(priceValue, 10);
+
+      if (isNaN(priceInt)) {
+        alert("판매가는 유효한 정수여야 합니다.");
+        return false;
+      }
+
+      if (!image) {
+        alert("상품 이미지를 선택해주세요.");
+        return false;
+      }
+
+      return { priceInt, data: createFormData(priceInt) };
+    };
+
+    // FormData 생성 함수 분리
+    const createFormData = (priceInt) => {
+      const data = new FormData();
+      data.append("name", formData.name);
+      data.append("info", formData.info);
+      data.append("price", priceInt);
+      data.append("shipping_method", formData.shipping_method);
+      data.append("shipping_fee", formData.shipping_fee);
+      data.append("stock", formData.stock);
+
+      if (image instanceof File) {
+        data.append("image", image);
+      } else if (image && typeof image === "string") {
+        data.append("image_url", image);
+      }
+
+      return data;
+    };
+
+    // 토큰 확인 및 갱신 함수 분리
+    const getValidToken = async () => {
+      let accessToken = getCookie("accessToken");
+      if (!accessToken) {
+        accessToken = await refreshAccessToken();
+      }
+      return accessToken;
+    };
+
+    // API 요청 함수 분리
+    const submitProductRequest = async (url, method, data, accessToken) => {
+      const response = await fetch(url, {
+        method,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: data,
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText);
+      }
+
+      return response.json();
+    };
+
+    try {
+      const validationResult = validateForm();
+      if (!validationResult) return;
+
+      const { data } = validationResult;
+      const url = isEditMode
+        ? `${API_BASE_URL}/products/${productId}/`
+        : `${API_BASE_URL}/products/`;
+
+      let accessToken = await getValidToken();
+      if (!accessToken) {
+        throw new Error("토큰 갱신에 실패했습니다.");
+      }
+
+      try {
+        const result = await submitProductRequest(
+          url,
+          isEditMode ? "PUT" : "POST",
+          data,
+          accessToken
+        );
+
+        alert(`상품이 성공적으로 ${isEditMode ? "수정" : "등록"}되었습니다.`);
+        navigate(`/product-details/${result.id}`);
+      } catch (error) {
+        // 401 에러 시 토큰 재갱신 시도
+        if (error.message.includes("401")) {
+          accessToken = await refreshAccessToken();
+          if (!accessToken) {
+            throw new Error("리프레시 토큰으로 갱신 실패");
+          }
+
+          const result = await submitProductRequest(
+            url,
+            isEditMode ? "PUT" : "POST",
+            data,
+            accessToken
+          );
+
+          alert(`상품이 성공적으로 ${isEditMode ? "수정" : "등록"}되었습니다.`);
+          navigate(`/product-details/${result.id}`);
+        } else {
+          throw error;
+        }
+      }
     } catch (error) {
-      console.error("오류 발생:", error);
-      alert(`오류 발생: ${error.message}`);
+      console.error(`상품 ${isEditMode ? "수정" : "등록"} 오류:`, error);
+      alert(`상품 ${isEditMode ? "수정" : "등록"} 실패: ${error.message}`);
     }
   };
 
@@ -187,14 +248,15 @@ export default function RegisterSection({ isEditMode, productId }) {
               <ButtonGroup>
                 <ShippingButton
                   type="button"
-                  isSelected={formData.shipping_method === "PARCEL"}
+                  $isSelected={formData.shipping_method === "PARCEL"}
                   onClick={() => handleShippingMethodChange("PARCEL")}
                 >
                   택배, 소포, 등기
                 </ShippingButton>
+
                 <ShippingButton
                   type="button"
-                  isSelected={formData.shipping_method === "DELIVERY"}
+                  $isSelected={formData.shipping_method === "DELIVERY"}
                   onClick={() => handleShippingMethodChange("DELIVERY")}
                 >
                   직접배송(화물배달)
@@ -358,17 +420,17 @@ const ShippingButton = styled.button`
   height: 54px;
   font-weight: bold;
   text-align: center;
-  background-color: ${({ isSelected }) =>
-    isSelected ? "var(--main-color)" : "#fff"};
-  color: ${({ isSelected }) => (isSelected ? "#fff" : "var(--sub-color)")};
+  background-color: ${({ $isSelected }) =>
+    $isSelected ? "var(--main-color)" : "#fff"};
+  color: ${({ $isSelected }) => ($isSelected ? "#fff" : "var(--sub-color)")};
   border: 1px solid
-    ${({ isSelected }) => (isSelected ? "var(--main-color)" : "#c4c4c4")};
+    ${({ $isSelected }) => ($isSelected ? "var(--main-color)" : "#c4c4c4")};
   border-radius: 5px;
   cursor: pointer;
   transition: all 0.3s ease;
 
   &:hover {
-    background-color: ${({ isSelected }) =>
-      isSelected ? "var(--main-color)" : "#f0f0f0"};
+    background-color: ${({ $isSelected }) =>
+      $isSelected ? "var(--main-color)" : "#f0f0f0"};
   }
 `;
