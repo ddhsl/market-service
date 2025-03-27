@@ -146,8 +146,8 @@ export default function Header() {
 
         {isLoggedIn && isSeller && (
           <Link to="/seller-center">
-            <NavButton isSeller={true}>
-              <NavText isSeller={true}>판매자 센터</NavText>
+            <NavButton $isSeller={true}>
+              <NavText $isSeller={true}>판매자 센터</NavText>
             </NavButton>
           </Link>
         )}

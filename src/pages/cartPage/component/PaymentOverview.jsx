@@ -21,14 +21,14 @@ export default function PaymentOverview({
       {overviewData.map(({ label, value }, index) => (
         <OverviewField
           key={index}
-          isPaymentAmount={label === "결제예정금액"}
-          isDiscount={label === "상품 할인"}
-          isShipping={label === "배송비"}
+          $isPaymentAmount={label === "결제예정금액"}
+          $isDiscount={label === "상품 할인"}
+          $isShipping={label === "배송비"}
         >
-          <OverviewLabel isPaymentAmount={label === "결제예정금액"}>
+          <OverviewLabel $isPaymentAmount={label === "결제예정금액"}>
             {label}
           </OverviewLabel>
-          <OverviewValue isPaymentAmount={label === "결제예정금액"}>
+          <OverviewValue $isPaymentAmount={label === "결제예정금액"}>
             {value}
             <span>원</span>
           </OverviewValue>
@@ -54,7 +54,7 @@ const OverviewField = styled.section`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: ${(props) => (props.isPaymentAmount ? "5px" : "12px")};
+  gap: ${(props) => (props.$isPaymentAmount ? "5px" : "12px")};
   width: 100%;
   height: 100%;
 
@@ -76,13 +76,13 @@ const OverviewField = styled.section`
 `;
 
 const OverviewLabel = styled.p`
-  font-weight: ${(props) => (props.isPaymentAmount ? "bold" : "normal")};
+  font-weight: ${(props) => (props.$isPaymentAmount ? "bold" : "normal")};
 `;
 
 const OverviewValue = styled.p`
   font-weight: bold;
-  font-size: ${(props) => (props.isPaymentAmount ? "36px" : "24px")};
-  color: ${(props) => (props.isPaymentAmount ? "#eb5757" : "black")};
+  font-size: ${(props) => (props.$isPaymentAmount ? "36px" : "24px")};
+  color: ${(props) => (props.$isPaymentAmount ? "#eb5757" : "black")};
 
   & > span {
     font-size: 16px;

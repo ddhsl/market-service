@@ -293,165 +293,159 @@ export default function JoinForm({ formType, selectedTab }) {
   return (
     <>
       <JoinFormWrap>
-        <form onSubmit={handleSubmit}>
-          <InputForm>
-            <InputTitle>아이디</InputTitle>
-            <label htmlFor="username" className="sr-only">
-              아이디를 입력하세요
-            </label>
-            <InputGroup>
-              <Input
-                id="username"
-                name="username"
-                width="346px"
-                value={joinFormData.username}
-                onChange={handleChange}
-                onFocus={() => handleFocus("username")}
-                style={{
-                  border: errors.username ? "1px solid #EB5757" : "",
-                }}
-              />
-              <Button
-                type="button"
-                onClick={handleCheckUsername}
-                disabled={errors.username}
-              >
-                중복확인
-              </Button>
-            </InputGroup>
-            {errors.username && <AlertMsg>{errors.username}</AlertMsg>}
-            {!errors.username && isUsernameAvailable && (
-              <AlertMsg style={{ color: "var(--main-color)" }}>
-                멋진 아이디네요 :)
-              </AlertMsg>
-            )}
-
-            <InputTitle>비밀번호</InputTitle>
-            <label htmlFor="password" className="sr-only">
-              비밀번호를 입력하세요
-            </label>
-            <PwInput
-              id="password"
-              name="password"
-              type="password"
-              value={joinFormData.password}
-              onChange={handleChange}
-              onFocus={() => handleFocus("password")}
-              isValid={isPasswordValid}
-              style={{
-                border: errors.password ? "1px solid #EB5757" : "",
-              }}
-            />
-            {errors.password && <AlertMsg>{errors.password}</AlertMsg>}
-
-            <InputTitle>비밀번호 재확인</InputTitle>
-            <label htmlFor="confirmPassword" className="sr-only">
-              비밀번호를 재입력하세요
-            </label>
-            <PwInput
-              id="confirmPassword"
-              name="confirmPassword"
-              type="password"
-              value={joinFormData.confirmPassword}
-              onChange={handleChange}
-              onFocus={() => handleFocus("confirmPassword")}
-              isValid={isConfirmPasswordValid}
-              style={{
-                border: errors.confirmPassword ? "1px solid #EB5757" : "",
-              }}
-            />
-            {errors.confirmPassword && (
-              <AlertMsg>{errors.confirmPassword}</AlertMsg>
-            )}
-
-            <InputTitle style={{ marginTop: "40px" }}>이름</InputTitle>
-            <label htmlFor="name" className="sr-only">
-              이름을 입력하세요
-            </label>
+        <InputForm onSubmit={handleSubmit}>
+          <InputTitle>아이디</InputTitle>
+          <label htmlFor="username" className="sr-only">
+            아이디를 입력하세요
+          </label>
+          <InputGroup>
             <Input
-              id="name"
-              name="name"
-              value={joinFormData.name}
+              id="username"
+              name="username"
+              width="346px"
+              value={joinFormData.username || ""}
               onChange={handleChange}
-              onFocus={() => handleFocus("name")}
+              onFocus={() => handleFocus("username")}
               style={{
-                border: errors.name ? "1px solid #EB5757" : "",
+                border: errors.username ? "1px solid #EB5757" : "",
               }}
             />
-            {errors.name && <AlertMsg>{errors.name}</AlertMsg>}
+            <Button
+              type="button"
+              onClick={handleCheckUsername}
+              $disabled={errors.username}
+            >
+              중복확인
+            </Button>
+          </InputGroup>
+          {errors.username && <AlertMsg>{errors.username}</AlertMsg>}
+          {!errors.username && isUsernameAvailable && (
+            <AlertMsg style={{ color: "var(--main-color)" }}>
+              멋진 아이디네요 :)
+            </AlertMsg>
+          )}
 
-            <InputTitle>휴대폰번호</InputTitle>
-            <PhoneNumber
-              selectedTab={selectedTab}
-              name="phone_number"
-              value={joinFormData.phone_number}
-              onChange={handleChange}
-              onFocus={() => handleFocus("phone_number")}
-            />
-            {errors.phone_number && (
-              <AlertMsg style={{ marginTop: "13px" }}>
-                {errors.phone_number}
-              </AlertMsg>
-            )}
+          <InputTitle>비밀번호</InputTitle>
+          <label htmlFor="password" className="sr-only">
+            비밀번호를 입력하세요
+          </label>
+          <PwInput
+            id="password"
+            name="password"
+            type="password"
+            value={joinFormData.password || ""}
+            onChange={handleChange}
+            onFocus={() => handleFocus("password")}
+            $isValid={isPasswordValid}
+            style={{
+              border: errors.password ? "1px solid #EB5757" : "",
+            }}
+          />
+          {errors.password && <AlertMsg>{errors.password}</AlertMsg>}
 
-            {isJoin && selectedTab === "seller" && (
-              <>
-                <InputTitle style={{ marginTop: "50px" }}>
-                  사업자 등록번호
-                </InputTitle>
-                <label
-                  htmlFor="company_registration_number"
-                  className="sr-only"
-                >
-                  사업자 등록번호를 입력하세요
-                </label>
-                <InputGroup>
-                  <Input
-                    id="company_registration_number"
-                    name="company_registration_number"
-                    width="346px"
-                    value={joinFormData.company_registration_number}
-                    onChange={handleChange}
-                    onFocus={() => handleFocus("company_registration_number")}
-                    style={{
-                      border: errors.company_registration_number
-                        ? "1px solid #EB5757"
-                        : "",
-                    }}
-                  />
-                  <Button type="button" onClick={handleCheckComponyNo}>
-                    인증
-                  </Button>
-                </InputGroup>
-                {errors.company_registration_number && (
-                  <AlertMsg>{errors.company_registration_number}</AlertMsg>
-                )}
-                {!errors.company_registration_number &&
-                  isCompanyNoAvailable && (
-                    <AlertMsg style={{ color: "var(--main-color)" }}>
-                      사업자등록번호 인증이 완료됐습니다.
-                    </AlertMsg>
-                  )}
+          <InputTitle>비밀번호 재확인</InputTitle>
+          <label htmlFor="confirmPassword" className="sr-only">
+            비밀번호를 재입력하세요
+          </label>
+          <PwInput
+            id="confirmPassword"
+            name="confirmPassword"
+            type="password"
+            value={joinFormData.confirmPassword || ""}
+            onChange={handleChange}
+            onFocus={() => handleFocus("confirmPassword")}
+            $isValid={isConfirmPasswordValid}
+            style={{
+              border: errors.confirmPassword ? "1px solid #EB5757" : "",
+            }}
+          />
+          {errors.confirmPassword && (
+            <AlertMsg>{errors.confirmPassword}</AlertMsg>
+          )}
 
-                <InputTitle>스토어 이름</InputTitle>
-                <label htmlFor="store_name" className="sr-only">
-                  스토어 이름을 입력하세요
-                </label>
+          <InputTitle style={{ marginTop: "40px" }}>이름</InputTitle>
+          <label htmlFor="name" className="sr-only">
+            이름을 입력하세요
+          </label>
+          <Input
+            id="name"
+            name="name"
+            value={joinFormData.name || ""}
+            onChange={handleChange}
+            onFocus={() => handleFocus("name")}
+            style={{
+              border: errors.name ? "1px solid #EB5757" : "",
+            }}
+          />
+          {errors.name && <AlertMsg>{errors.name}</AlertMsg>}
+
+          <InputTitle>휴대폰번호</InputTitle>
+          <PhoneNumber
+            selectedTab={selectedTab}
+            name="phone_number"
+            value={joinFormData.phone_number || ""}
+            onChange={handleChange}
+            onFocus={() => handleFocus("phone_number")}
+          />
+          {errors.phone_number && (
+            <AlertMsg style={{ marginTop: "13px" }}>
+              {errors.phone_number}
+            </AlertMsg>
+          )}
+
+          {isJoin && selectedTab === "seller" && (
+            <>
+              <InputTitle style={{ marginTop: "50px" }}>
+                사업자 등록번호
+              </InputTitle>
+              <label htmlFor="company_registration_number" className="sr-only">
+                사업자 등록번호를 입력하세요
+              </label>
+              <InputGroup>
                 <Input
-                  id="store_name"
-                  name="store_name"
-                  value={joinFormData.store_name}
+                  id="company_registration_number"
+                  name="company_registration_number"
+                  width="346px"
+                  value={joinFormData.company_registration_number || ""}
                   onChange={handleChange}
-                  onFocus={() => handleFocus("store_name")}
+                  onFocus={() => handleFocus("company_registration_number")}
                   style={{
-                    border: errors.store_name ? "1px solid #EB5757" : "",
+                    border: errors.company_registration_number
+                      ? "1px solid #EB5757"
+                      : "",
                   }}
                 />
-                {errors.store_name && <AlertMsg>{errors.store_name}</AlertMsg>}
-              </>
-            )}
-          </InputForm>
-        </form>
+                <Button type="button" onClick={handleCheckComponyNo}>
+                  인증
+                </Button>
+              </InputGroup>
+              {errors.company_registration_number && (
+                <AlertMsg>{errors.company_registration_number}</AlertMsg>
+              )}
+              {!errors.company_registration_number && isCompanyNoAvailable && (
+                <AlertMsg style={{ color: "var(--main-color)" }}>
+                  사업자등록번호 인증이 완료됐습니다.
+                </AlertMsg>
+              )}
+
+              <InputTitle>스토어 이름</InputTitle>
+              <label htmlFor="store_name" className="sr-only">
+                스토어 이름을 입력하세요
+              </label>
+              <Input
+                id="store_name"
+                name="store_name"
+                value={joinFormData.store_name || ""}
+                onChange={handleChange}
+                onFocus={() => handleFocus("store_name")}
+                style={{
+                  border: errors.store_name ? "1px solid #EB5757" : "",
+                }}
+              />
+              {errors.store_name && <AlertMsg>{errors.store_name}</AlertMsg>}
+            </>
+          )}
+        </InputForm>
       </JoinFormWrap>
       <CheckImg
         onClick={handleAgree}
@@ -464,11 +458,11 @@ export default function JoinForm({ formType, selectedTab }) {
       </p>
       <Button
         type="submit"
-        width="480px"
-        height="60px"
-        fontSize="18px"
+        $width="480px"
+        $height="60px"
+        $fontSize="18px"
         onClick={handleSubmit}
-        disabled={!isAgree}
+        $disabled={!isAgree}
         style={{
           backgroundColor: !isAgree ? "#c4c4c4" : "",
         }}
@@ -501,11 +495,10 @@ export const InputGroup = styled.div`
 
 const PwInput = styled(Input)`
   background-image: url(${(props) =>
-    props.isValid ? pwCheckFill : pwCheckImg});
+    props.$isValid ? pwCheckFill : pwCheckImg});
   background-repeat: no-repeat;
   background-position: right 13px center;
 `;
-
 const CheckImg = styled.img`
   margin-right: 10px;
   position: relative;

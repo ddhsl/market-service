@@ -11,13 +11,13 @@ export default function AccountTabs({ formType, handleTab, selectedTab }) {
       </h3>
       <BuyerTab
         onClick={() => handleTab("buyer")}
-        isSelected={selectedTab === "buyer"}
+        $isSelected={selectedTab === "buyer"}
       >
         <span>{isJoin ? "구매회원가입" : "구매회원 로그인"}</span>
       </BuyerTab>
       <SellerTab
         onClick={() => handleTab("seller")}
-        isSelected={selectedTab === "seller"}
+        $isSelected={selectedTab === "seller"}
       >
         <span>{isJoin ? "판매회원가입" : "판매회원 로그인"}</span>
       </SellerTab>
@@ -32,15 +32,15 @@ const TabContainer = styled.section`
 `;
 
 const AccountTabStyle = styled.button`
-  background-color: ${(props) => (props.isSelected ? "#fff" : "#f2f2f2")};
+  background-color: ${(props) => (props.$isSelected ? "#fff" : "#f2f2f2")};
   position: relative;
 
-  z-index: ${(props) => (props.isSelected ? "100" : "70")};
+  z-index: ${(props) => (props.$isSelected ? "100" : "70")};
   width: 277px;
   height: 70px;
   border: 1px solid #c4c4c4;
   border-bottom: ${(props) =>
-    props.isSelected ? "none" : "1px solid #c4c4c4"};
+    props.$isSelected ? "none" : "1px solid #c4c4c4"};
   border-radius: 10px 10px 0 0;
   cursor: pointer;
 `;

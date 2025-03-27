@@ -47,7 +47,7 @@ export default function CartItem({
           style={{ cursor: "pointer" }}
         />
         <CartItemContent
-          flex={4.5}
+          $flex={4.5}
           style={{ justifyContent: "flex-start", gap: "36px" }}
         >
           <img src={product.image} alt="상품사진" />
@@ -65,7 +65,7 @@ export default function CartItem({
             <p>택배배송 / 무료배송</p>
           </div>
         </CartItemContent>
-        <CartItemContent flex={3}>
+        <CartItemContent $flex={3}>
           <QuantityControl
             quantity={quantity}
             handleDecrease={handleCartDecrease}
@@ -74,7 +74,7 @@ export default function CartItem({
             stock={product.stock}
           />
         </CartItemContent>
-        <CartItemContent flex={2.5}>
+        <CartItemContent $flex={2.5}>
           <PriceAndOrder>
             <span>{(product.price * quantity).toLocaleString()}원</span>
             <Button onClick={() => handleEachOrderClick(item)}>주문하기</Button>
@@ -113,7 +113,7 @@ const CartItemWrap = styled.div`
 `;
 
 const CartItemContent = styled.div`
-  flex: ${({ flex }) => flex};
+  flex: ${({ $flex }) => $flex};
   display: flex;
   justify-content: center;
   & > img {

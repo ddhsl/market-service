@@ -16,7 +16,7 @@ export default function PurchaseInfoSection() {
           <PurchaseInfoTab
             key={index}
             onClick={() => handleTabClick(index)}
-            isSelected={selectedTab === index}
+            $isSelected={selectedTab === index}
           >
             {label}
           </PurchaseInfoTab>
@@ -55,7 +55,7 @@ const PurchaseInfoTab = styled.li`
   }
 
   ${(props) =>
-    props.isSelected &&
+    props.$isSelected &&
     `
     border-bottom: 6px solid var(--main-color);
     color: var(--main-color);

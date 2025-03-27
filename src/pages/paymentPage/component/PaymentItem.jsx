@@ -11,7 +11,7 @@ export default function PaymentItem({
         <PaymentItemContainer key={index}>
           <PaymentItemWrapper>
             <PaymentItemContent
-              flex={4}
+              $flex={4}
               style={{
                 display: "flex",
                 justifyContent: "flex-start",
@@ -25,13 +25,13 @@ export default function PaymentItem({
                 <p>수량: {item.quantity}개</p>
               </div>
             </PaymentItemContent>
-            <PaymentItemContent flex={2} style={{ color: "var(--sub-color)" }}>
+            <PaymentItemContent $flex={2} style={{ color: "var(--sub-color)" }}>
               -
             </PaymentItemContent>
-            <PaymentItemContent flex={2} style={{ color: "var(--sub-color)" }}>
+            <PaymentItemContent $flex={2} style={{ color: "var(--sub-color)" }}>
               {totalShippingFee.toLocaleString()}원
             </PaymentItemContent>
-            <PaymentItemContent flex={2} style={{ fontWeight: "bold" }}>
+            <PaymentItemContent $flex={2} style={{ fontWeight: "bold" }}>
               {(totalPrice + totalShippingFee).toLocaleString()}원
             </PaymentItemContent>
           </PaymentItemWrapper>
@@ -55,7 +55,7 @@ const PaymentItemWrapper = styled.ul`
 `;
 
 const PaymentItemContent = styled.li`
-  flex: ${({ flex }) => flex};
+  flex: ${({ $flex }) => $flex};
   display: flex;
   justify-content: center;
   align-items: center;

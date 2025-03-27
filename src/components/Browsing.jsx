@@ -49,7 +49,7 @@ export default function Browsing() {
 
       <div className="dots">
         {images.map((_, index) => (
-          <Dot key={index} isActive={index === currentIndex} />
+          <Dot key={index} $isActive={index === currentIndex} />
         ))}
       </div>
 
@@ -91,7 +91,7 @@ const BrowseSection = styled.section`
     justify-content: center;
     align-items: center;
     position: relative;
-    overflow: hidden; /* 배너 영역을 벗어난 부분은 숨깁니다 */
+    overflow: hidden;
   }
 
   .banner-wrapper {
@@ -103,7 +103,7 @@ const BrowseSection = styled.section`
     width: 100%;
     height: 100%;
     object-fit: cover;
-    flex-shrink: 0; /* 이미지를 축소하지 않도록 설정 */
+    flex-shrink: 0;
   }
 
   .swiper-icons {
@@ -136,6 +136,6 @@ const Dot = styled.div`
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background-color: ${(props) => (props.isActive ? "#000" : "#fff")};
+  background-color: ${(props) => (props.$isActive ? "#000" : "#fff")};
   transition: background-color 0.3s ease;
 `;

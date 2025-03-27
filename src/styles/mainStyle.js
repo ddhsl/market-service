@@ -11,7 +11,7 @@ export const Main = styled.main`
 
 export const ProductCard = styled.article``;
 
-//product card 공통 스타일 정의
+// Product card 공통 스타일 정의
 
 const variants = {
   main: {
@@ -40,17 +40,19 @@ const variants = {
 };
 
 export const ProductImg = styled.img`
-  border: ${({ variant }) => variants[variant]?.productImg.border};
-  border-radius: ${({ variant }) => variants[variant]?.productImg.borderRadius};
-  width: ${({ variant }) => variants[variant]?.productImg.width};
-  height: ${({ variant }) => variants[variant]?.productImg.height};
-  margin-bottom: ${({ variant }) => variants[variant]?.productImg.marginBottom};
-  cursor: ${({ variant }) => variants[variant]?.productImg.cursor};
-  transition: ${({ variant }) =>
-    variant === "main" ? "transform 0.3s ease, box-shadow 0.3s ease" : "none"};
+  border: ${({ $variant }) => variants[$variant]?.productImg.border};
+  border-radius: ${({ $variant }) =>
+    variants[$variant]?.productImg.borderRadius};
+  width: ${({ $variant }) => variants[$variant]?.productImg.width};
+  height: ${({ $variant }) => variants[$variant]?.productImg.height};
+  margin-bottom: ${({ $variant }) =>
+    variants[$variant]?.productImg.marginBottom};
+  cursor: ${({ $variant }) => variants[$variant]?.productImg.cursor};
+  transition: ${({ $variant }) =>
+    $variant === "main" ? "transform 0.3s ease, box-shadow 0.3s ease" : "none"};
 
-  ${({ variant }) =>
-    variant === "main" &&
+  ${({ $variant }) =>
+    $variant === "main" &&
     `
     &:hover {
       transform: scale(1.03);
@@ -61,20 +63,21 @@ export const ProductImg = styled.img`
 
 export const StoreName = styled.p`
   color: var(--sub-color);
-  font-size: ${({ variant }) => variants[variant]?.storeName.fontSize};
-  font-weight: ${({ variant }) => variants[variant]?.storeName.fontWeight};
-  margin-bottom: ${({ variant }) => variants[variant]?.storeName.marginBottom};
+  font-size: ${({ $variant }) => variants[$variant]?.storeName.fontSize};
+  font-weight: ${({ $variant }) => variants[$variant]?.storeName.fontWeight};
+  margin-bottom: ${({ $variant }) =>
+    variants[$variant]?.storeName.marginBottom};
 `;
 
 export const ProductName = styled.h3`
-  font-size: ${({ variant }) => variants[variant]?.productName.fontSize};
-  margin-bottom: ${({ variant }) =>
-    variants[variant]?.productName.marginBottom};
+  font-size: ${({ $variant }) => variants[$variant]?.productName.fontSize};
+  margin-bottom: ${({ $variant }) =>
+    variants[$variant]?.productName.marginBottom};
 `;
 
 export const Price = styled.p`
-  font-size: ${({ variant }) => variants[variant]?.price.fontSize};
-  font-weight: ${({ variant }) => variants[variant]?.price.fontWeight};
+  font-size: ${({ $variant }) => variants[$variant]?.price.fontSize};
+  font-weight: ${({ $variant }) => variants[$variant]?.price.fontWeight};
   & > span {
     font-size: 16px;
     font-weight: normal;

@@ -104,10 +104,10 @@ export default function LoginForm({ selectedTab }) {
       {loginError && <AlertMsg>{loginError}</AlertMsg>}
       <Button
         type="submit"
-        width="480px"
-        height="60px"
-        fontSize="18px"
-        marginTop="28px"
+        $width="480px"
+        $height="60px"
+        $fontSize="18px"
+        $marginTop="28px"
       >
         로그인
       </Button>
