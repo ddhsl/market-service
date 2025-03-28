@@ -235,7 +235,7 @@ export default function JoinForm({ formType, selectedTab }) {
       return;
     }
 
-    if (!isCompanyNoAvailable) {
+    if (selectedTab === "seller" && !isCompanyNoAvailable) {
       alert("사업자등록번호 인증을 진행해주세요.");
       return;
     }
