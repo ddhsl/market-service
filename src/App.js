@@ -18,6 +18,7 @@ import Loader from "./components/Loader.jsx";
 function App() {
   const { isLoggedIn, isSeller, refreshAccessToken } = useAuth();
   const [loading, setLoading] = useState(true);
+
   let baseRouterName =
     process.env.REACT_APP_HOMEPAGE === "http://localhost:3000"
       ? ""
