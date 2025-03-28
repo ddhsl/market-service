@@ -25,8 +25,28 @@ export const OrderProvider = ({ children }) => {
     }));
   };
 
+  // 새로 추가된 resetOrderData 메서드
+  const resetOrderData = () => {
+    setOrderData({
+      ordererName: "",
+      ordererPhoneNumber: { first: "", middle: "", last: "" },
+      ordererEmail: "",
+      recipient: "",
+      recipientPhoneNumber: { first: "", middle: "", last: "" },
+      shippingAddress: {
+        postalCode: "",
+        address: "",
+        detailAddress: "",
+      },
+      shippingMessage: "",
+      paymentMethod: "card",
+    });
+  };
+
   return (
-    <OrderContext.Provider value={{ orderData, updateOrderData }}>
+    <OrderContext.Provider
+      value={{ orderData, updateOrderData, resetOrderData }}
+    >
       {children}
     </OrderContext.Provider>
   );
