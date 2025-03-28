@@ -196,28 +196,30 @@ export default function ProductDetails() {
             </div>
           </OrderSummary>
 
-          <Button
-            $width="416px"
-            $height="60px"
-            $backgroundColor={isButtonDisabled ? "#c4c4c4" : ""}
-            cursor={isButtonDisabled ? "not-allowed" : "pointer"}
-            onClick={handleDirectPurchase}
-            $disabled={isButtonDisabled}
-          >
-            바로 구매
-          </Button>
+          <ButtonWrap>
+            <Button
+              $width="416px"
+              $height="60px"
+              $backgroundColor={isButtonDisabled ? "#c4c4c4" : ""}
+              cursor={isButtonDisabled ? "not-allowed" : "pointer"}
+              onClick={handleDirectPurchase}
+              $disabled={isButtonDisabled}
+            >
+              바로 구매
+            </Button>
 
-          <Button
-            $width="200px"
-            $height="60px"
-            $backgroundColor={isButtonDisabled ? "#c4c4c4" : "#8b8b8b"}
-            $buttonType="cart"
-            $marginLeft="14px"
-            onClick={handleCart}
-            $disabled={isButtonDisabled}
-          >
-            장바구니
-          </Button>
+            <Button
+              $width="200px"
+              $height="60px"
+              $backgroundColor={isButtonDisabled ? "#c4c4c4" : "#8b8b8b"}
+              $buttonType="cart"
+              $marginLeft="14px"
+              onClick={handleCart}
+              $disabled={isButtonDisabled}
+            >
+              장바구니
+            </Button>
+          </ButtonWrap>
 
           {!isAvailable && (
             <p style={{ color: "red", marginTop: "13px" }}>
@@ -245,8 +247,6 @@ const ProductInfoSection = styled.section`
   & > img {
     width: 600px;
     height: 600px;
-    max-width: 800px;
-    max-height: 800px;
   }
 `;
 const ProductDetail = styled.div`
@@ -273,6 +273,7 @@ const OrderSummary = styled.div`
   display: flex;
   align-items: baseline;
   justify-content: space-between;
+  margin-top: 50px;
 
   & > p {
     font-weight: bold;
@@ -294,4 +295,9 @@ const OrderSummary = styled.div`
     margin-left: 11px;
     margin-right: 11px;
   }
+`;
+
+const ButtonWrap = styled.div`
+  display: flex;
+  margin-top: 40px;
 `;
