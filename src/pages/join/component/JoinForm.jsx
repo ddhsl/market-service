@@ -219,11 +219,7 @@ export default function JoinForm({ formType, selectedTab }) {
     });
 
     setErrors(allErrors);
-    return (
-      Object.keys(allErrors).length === 0 &&
-      isUsernameAvailable &&
-      isCompanyNoAvailable
-    );
+    return Object.keys(allErrors).length === 0;
   };
 
   // 회원가입하기
