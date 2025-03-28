@@ -25,7 +25,7 @@ export default function Payment() {
   const navigate = useNavigate();
   const location = useLocation();
   const selectedItems = location.state?.selectedItems || [];
-  const { orderData } = useOrder();
+  const { orderData, resetOrderData } = useOrder();
   const {
     recipient,
     recipientPhoneNumber = { first: "", middle: "", last: "" },
@@ -108,6 +108,7 @@ export default function Payment() {
 
       const result = await response.json();
       console.log("주문 생성 성공:", result);
+      alert("성공적으로 주문이 생성되었습니다.");
       return result;
     } catch (error) {
       console.error("주문 생성 오류:", error);
@@ -190,7 +191,10 @@ export default function Payment() {
       };
 
       const result = await createOrder(orderData);
-      if (result) navigate("/mypage");
+      if (result) {
+        resetOrderData();
+        navigate("/mypage");
+      }
     } else {
       // 개별 상품을 주문하는 경우
       for (const item of selectedItems) {
@@ -208,6 +212,7 @@ export default function Payment() {
 
         const result = await createOrder(orderData);
         if (result) {
+          resetOrderData();
           alert("성공적으로 주문이 생성됐습니다.");
           navigate("/mypage");
         }
