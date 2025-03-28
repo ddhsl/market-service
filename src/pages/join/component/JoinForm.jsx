@@ -370,7 +370,7 @@ export default function JoinForm({ formType, selectedTab }) {
           <Input
             id="name"
             name="name"
-            value={joinFormData.name || ""}
+            value={joinFormData.username || ""}
             onChange={handleChange}
             onFocus={() => handleFocus("name")}
             style={{
