@@ -10,8 +10,10 @@ import AlertMsg from "../../../components/AlertMsg";
 import checkImg from "../../../assets/check-box.svg";
 import checkFill from "../../../assets/check-fill-box.svg";
 import { API_BASE_URL } from "../../../constants/api";
+import { useNavigate } from "react-router-dom";
 
 export default function JoinForm({ formType, selectedTab }) {
+  const navigate = useNavigate();
   const isJoin = formType === "join";
   const [isAgree, setIsAgree] = useState(false);
   const [isPasswordValid, setIsPasswordValid] = useState(false);
@@ -90,20 +92,27 @@ export default function JoinForm({ formType, selectedTab }) {
       return false;
     }
   };
-
-  const handleCheckUsername = () =>
-    checkAvailability(
+  const handleCheckUsername = () => {
+    return checkAvailability(
       "username",
       "/accounts/validate-username/",
       joinFormData.username
-    ).then(setIsUsernameAvailable);
+    ).then((result) => {
+      console.log("Username availability result:", result);
+      setIsUsernameAvailable(result);
+    });
+  };
 
-  const handleCheckComponyNo = () =>
-    checkAvailability(
+  const handleCheckComponyNo = () => {
+    return checkAvailability(
       "company_registration_number",
       "/accounts/seller/validate-registration-number/",
       joinFormData.company_registration_number
-    ).then(setIsCompanyNoAvailable);
+    ).then((result) => {
+      console.log("Company number availability result:", result);
+      setIsCompanyNoAvailable(result);
+    });
+  };
 
   // 입력 필드 순서
   const fieldOrder = [
@@ -140,7 +149,12 @@ export default function JoinForm({ formType, selectedTab }) {
       return { ...prev, [name]: value };
     });
 
-    setIsUsernameAvailable(false);
+    // 필드 값이 변경되면 해당 필드의 유효성 상태 초기화
+    if (name === "username") {
+      setIsUsernameAvailable(false);
+    } else if (name === "company_registration_number") {
+      setIsCompanyNoAvailable(false);
+    }
 
     // 유효성 검사 실행
     const newErrors = validateField(name, value);
@@ -226,15 +240,21 @@ export default function JoinForm({ formType, selectedTab }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // if (!isUsernameAvailable) {
-    //   alert("아이디 중복확인을 진행해주세요.");
-    //   return;
-    // }
+    console.log("Submit state:", {
+      isUsernameAvailable,
+      isCompanyNoAvailable,
+      selectedTab,
+    });
 
-    // if (selectedTab === "seller" && !isCompanyNoAvailable) {
-    //   alert("사업자등록번호 인증을 진행해주세요.");
-    //   return;
-    // }
+    if (!isUsernameAvailable) {
+      alert("아이디 중복확인을 진행해주세요.");
+      return;
+    }
+
+    if (selectedTab === "seller" && !isCompanyNoAvailable) {
+      alert("사업자등록번호 인증을 진행해주세요.");
+      return;
+    }
 
     if (validate()) {
       console.log("폼 데이터가 유효합니다: ", joinFormData);
@@ -271,7 +291,7 @@ export default function JoinForm({ formType, selectedTab }) {
 
         if (response.ok) {
           alert("회원가입이 완료되었습니다!");
-          window.location.href = "/login";
+          navigate("/login");
         } else {
           console.log("회원가입 실패", data);
           alert("회원가입 실패: " + (data.error || "알 수 없는 오류"));
