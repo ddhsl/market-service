@@ -71,7 +71,6 @@ export default function LoginForm({ selectedTab }) {
         localStorage.setItem("name", data.user.name);
         localStorage.setItem("username", data.user.username);
 
-        alert("로그인에 성공했습니다!");
         navigate("/");
       } else {
         setLoginError(data.error || "로그인에 실패했습니다.");
