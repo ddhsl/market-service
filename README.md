@@ -217,8 +217,8 @@ src
 ### `useCallback`을 사용하지 않았을 때 발생한 오류와 해결 과정  
 
 #### **문제 발생**  
-처음에는 `navigateToEdit` 함수를 일반 함수로 선언하여 `handleEditClick`에서 호출하도록 구현.   
-하지만 이 방식에서는 `navigate`와 `product`가 변경될 때마다 `navigateToEdit`의 참조가 변경되었고, 불필요한 렌더링이 발생. 
+처음에는 `navigateToEdit` 함수를 일반 함수로 선언하여 `handleEditClick`에서 호출하도록 구현됨.   
+하지만 이 방식에서는 `navigate`와 `product`가 변경될 때마다 `navigateToEdit`의 참조가 변경되었고, 불필요한 렌더링이 발생함. 
 특히, `useEffect`나 특정 이벤트 핸들러에서 `navigateToEdit`을 의존성 배열에 추가하면,해당 함수가 계속 새로 생성되어 무한 루프가 발생할 가능성이 존재하였음.
 
 #### **발생한 오류 예시**  
@@ -241,18 +241,19 @@ const handleEditClick = () => {
 
 ### **[적용 후 개선된 점]**
 #### **불필요한 함수 재생성을 방지**
-- `useCallback`을 사용하여 `navigateToEdit`을 메모이제이션함. 이제 `navigateToEdit` 함수는 `navigate`와 `product`가 변경되지 않는 한  
-- 동일한 참조를 유지하게 되어 불필요한 함수 재생성을 방지할 수 있음.
+- `useCallback`을 사용하여 `navigateToEdit`을 메모이제이션함.
+- `navigateToEdit` 함수는 `navigate`와 `product`가 변경되지 않는 한 동일한 참조를 유지함
 
 #### **렌더링 최적화**
 - `handleEditClick`이 항상 동일한 함수 참조를 유지하여, 불필요한 리렌더링을 방지함. 이로 인해 성능이 개선됨.
 
 #### **버그 해결**
-- `useEffect` 의존성 문제나 이벤트 핸들러에서의 예상치 못한 동작을 예방할 수 있었음. 이제 `handleEditClick`에서 항상 같은 함수 참조를 사용하므로, 예기치 않은 동작이 발생하지 않음.
+- `useEffect` 의존성 문제나 이벤트 핸들러에서의 예상치 못한 동작을 예방할 수 있었음.
+- 이제 `handleEditClick`에서 항상 같은 함수 참조를 사용하므로, 예기치 않은 동작이 발생하지 않음.
 
 #### **함수 안정성 향상**
-- `navigateToEdit`이 변경되지 않아서 코드의 예측 가능성과 안정성이 향상됨. 상태가 변하지 않는 한 동일한 함수 참조를 사용하게 되어,  
-- 후속 호출에서의 예기치 않은 동작을 방지함.
+- `navigateToEdit`이 변경되지 않아서 코드의 예측 가능성과 안정성이 향상됨.
+-  상태가 변하지 않는 한 동일한 함수 참조를 사용하게 되어, 후속 호출에서의 예기치 않은 동작을 방지함.
 
 
 
