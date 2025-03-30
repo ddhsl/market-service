@@ -226,15 +226,15 @@ export default function JoinForm({ formType, selectedTab }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!isUsernameAvailable) {
-      alert("아이디 중복확인을 진행해주세요.");
-      return;
-    }
+    // if (!isUsernameAvailable) {
+    //   alert("아이디 중복확인을 진행해주세요.");
+    //   return;
+    // }
 
-    if (selectedTab === "seller" && !isCompanyNoAvailable) {
-      alert("사업자등록번호 인증을 진행해주세요.");
-      return;
-    }
+    // if (selectedTab === "seller" && !isCompanyNoAvailable) {
+    //   alert("사업자등록번호 인증을 진행해주세요.");
+    //   return;
+    // }
 
     if (validate()) {
       console.log("폼 데이터가 유효합니다: ", joinFormData);
