@@ -42,6 +42,8 @@ export default function ProductDetails() {
   };
 
   async function handleCart() {
+    if (!isAvailable) return;
+
     if (isLoggedIn && !isSeller) {
       try {
         let accessToken = getCookie("accessToken");
@@ -126,6 +128,8 @@ export default function ProductDetails() {
   const isButtonDisabled = isSellerUser || !isAvailable;
 
   const handleDirectPurchase = () => {
+    if (!isAvailable) return;
+
     if (isLoggedIn && !isSeller) {
       const selectedItem = {
         product: {
