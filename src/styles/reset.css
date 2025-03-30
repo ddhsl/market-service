@@ -198,6 +198,11 @@ input:-webkit-autofill:focus {
   -webkit-box-shadow: 0 0 0px 1000px white inset !important;
   box-shadow: 0 0 0px 1000px white inset !important;
 }
+
+/* Safari 자동완성 열쇠 아이콘 제거 */
+input::-webkit-credentials-auto-fill-button {
+  display: none !important;
+}
 /* 아이콘 숨기기 */
 input[type="text"],
 input[type="password"],
