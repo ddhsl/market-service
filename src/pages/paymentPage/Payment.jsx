@@ -213,7 +213,6 @@ export default function Payment() {
         const result = await createOrder(orderData);
         if (result) {
           resetOrderData();
-          alert("성공적으로 주문이 생성됐습니다.");
           navigate("/mypage");
         }
       }
