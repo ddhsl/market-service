@@ -19,8 +19,26 @@ export default function ErrorPage() {
         <p>페이지가 존재하지 않거나 사용할 수 없는 페이지입니다.</p>
         <p>웹 주소가 올바른지 확인해 주세요.</p>
         <div style={{ display: "flex", gap: "14px", marginTop: "40px" }}>
-          <Button onClick={() => navigate("/")}>메인으로</Button>
-          <Button onClick={() => navigate(-1)}>이전 페이지</Button>
+          <Button
+            $width="200px"
+            $height="60px"
+            $fontSize="18px"
+            onClick={() => navigate("/")}
+          >
+            메인으로
+          </Button>
+          <Button
+            $width="200px"
+            $height="60px"
+            $fontSize="18px"
+            $backgroundColor="#fff"
+            $color="var(--sub-color)"
+            $border="1px solid #c4c4c4"
+            $buttonType="cancel"
+            onClick={() => navigate(-1)}
+          >
+            이전 페이지
+          </Button>
         </div>
       </div>
     </ErrorWrap>
@@ -42,17 +60,5 @@ const ErrorWrap = styled.div`
   }
   & > div > p {
     color: var(--sub-color);
-  }
-
-  & > div > div > button {
-    width: 200px;
-    height: 60px;
-    font-size: 18px;
-  }
-
-  & > div > div > button:nth-child(2) {
-    color: var(--sub-color);
-    background-color: #fff;
-    border: 1px solid var(--sub-color);
   }
 `;
