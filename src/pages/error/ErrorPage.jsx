@@ -1,8 +1,10 @@
 import styled from "styled-components";
 import errorIcon from "../../assets/icon-404.svg";
 import Button from "../../components/Button";
+import { useNavigate } from "react-router-dom";
 
 export default function ErrorPage() {
+  const navigate = useNavigate();
   return (
     <ErrorWrap>
       <img src={errorIcon} alt="error" />
@@ -17,8 +19,8 @@ export default function ErrorPage() {
         <p>페이지가 존재하지 않거나 사용할 수 없는 페이지입니다.</p>
         <p>웹 주소가 올바른지 확인해 주세요.</p>
         <div style={{ display: "flex", gap: "14px", marginTop: "40px" }}>
-          <Button>메인으로</Button>
-          <Button>이전 페이지</Button>
+          <Button onClick={() => navigate("/")}>메인으로</Button>
+          <Button onClick={() => navigate(-1)}>이전 페이지</Button>
         </div>
       </div>
     </ErrorWrap>
