@@ -227,10 +227,23 @@ export default function JoinForm({ formType, selectedTab }) {
   // 전체 폼 유효성 검사
   const validate = () => {
     const allErrors = {};
+
+    // 기존 필드 유효성 검사
     Object.keys(joinFormData).forEach((field) => {
       const fieldErrors = validateField(field, joinFormData[field]);
       Object.assign(allErrors, fieldErrors);
     });
+
+    // 아이디 중복확인 여부 검사
+    if (!isUsernameAvailable) {
+      allErrors.username = "아이디 중복확인을 진행해주세요.";
+    }
+
+    // 판매자인 경우 사업자등록번호 인증 여부 검사
+    if (selectedTab === "seller" && !isCompanyNoAvailable) {
+      allErrors.company_registration_number =
+        "사업자등록번호 인증을 진행해주세요.";
+    }
 
     setErrors(allErrors);
     return Object.keys(allErrors).length === 0;
@@ -240,22 +253,18 @@ export default function JoinForm({ formType, selectedTab }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log("Submit state:", {
-      isUsernameAvailable,
-      isCompanyNoAvailable,
-      selectedTab,
-    });
-
+    // 직접 중복확인과 인증 여부 체크 (먼저 처리)
     if (!isUsernameAvailable) {
       alert("아이디 중복확인을 진행해주세요.");
-      return;
+      return; // 여기서 함수 종료
     }
 
     if (selectedTab === "seller" && !isCompanyNoAvailable) {
       alert("사업자등록번호 인증을 진행해주세요.");
-      return;
+      return; // 여기서 함수 종료
     }
 
+    // 그 다음에 전체 폼 유효성 검사
     if (validate()) {
       console.log("폼 데이터가 유효합니다: ", joinFormData);
 
@@ -309,7 +318,7 @@ export default function JoinForm({ formType, selectedTab }) {
   return (
     <>
       <JoinFormWrap>
-        <InputForm onSubmit={handleSubmit}>
+        <InputForm type="submit" onSubmit={handleSubmit}>
           <InputTitle>아이디</InputTitle>
           <label htmlFor="username" className="sr-only">
             아이디를 입력하세요
